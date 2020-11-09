@@ -1,0 +1,22 @@
+#[derive(Debug)]
+pub enum GameState {
+    WaitingForStart,
+    Running,
+    Paused,
+    GameOver,
+}
+
+#[derive(Debug)]
+pub struct Game {
+    pub state: GameState,
+    pub score: f32,
+}
+
+impl Game {
+    pub fn new() -> Self {
+        Game {
+            state: GameState::WaitingForStart,
+            score: 0.0,
+        }
+    }
+}
