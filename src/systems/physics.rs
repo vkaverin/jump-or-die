@@ -1,12 +1,18 @@
 use crate::world::{Gravity, Velocity};
 use bevy::prelude::*;
 use crate::player::{Player, PlayerMovementState};
+use crate::game::{Game, GameState};
 
 pub fn gravity(
     time: Res<Time>,
+    game: Res<Game>,
     gravity: Res<Gravity>,
     mut query: Query<(&mut Velocity, &mut Transform)>,
 ) {
+    if game.state != GameState::Running {
+        return;
+    }
+
     for (mut velocity, mut _transform) in query.iter_mut() {
         let y = (velocity.0.y() - gravity.0 * time.delta_seconds).max(-gravity.0);
         velocity.0.set_y(y);
@@ -15,9 +21,14 @@ pub fn gravity(
 
 pub fn movement(
     time: Res<Time>,
+    game: Res<Game>,
     mut player_entity_query: Query<(Entity, &mut Player)>,
     mut query: Query<(Entity, &mut Velocity, &Sprite, &mut Transform)>
 ) {
+    if game.state != GameState::Running {
+        return;
+    }
+
     for (entity, mut velocity, sprite, mut transform) in query.iter_mut() {
         *transform.translation.x_mut() += velocity.0.x() * time.delta_seconds;
         *transform.translation.y_mut() += velocity.0.y() * time.delta_seconds;
