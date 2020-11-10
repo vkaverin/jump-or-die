@@ -45,21 +45,24 @@ fn input_on_running_game(
         transform.translation.set_y(player::INITIAL_POSITION_Y);
     }
 
-    if player.movement_state == PlayerMovementState::Staying
-        || player.movement_state == PlayerMovementState::Running
-    {
-        let mut dx = 0.0;
-        let mut dy = 0.0;
+    match player.movement_state {
+        PlayerMovementState::Staying | PlayerMovementState::Running => {
+            {
+                if input.pressed(KeyCode::Up) || input.pressed(KeyCode::Space) {
+                    player.movement_state = PlayerMovementState::Jumping;
+                    velocity.0.set_y(player::VELOCITY_ON_JUMP);
+                }
 
-        if input.pressed(KeyCode::Up) || input.pressed(KeyCode::Space) {
-            player.movement_state = PlayerMovementState::Jumping;
-            dy = player::VELOCITY_ON_JUMP;
-        }
+                if input.pressed(KeyCode::Left) {
+                    velocity.0.set_x(-player::MOVEMENT_VELOCITY);
+                }
 
-        let new_x = (velocity.0.x() + dx).max(-300.0).min(300.0);
-        let new_y = velocity.0.y() + dy;
-        velocity.0.set_x(new_x);
-        velocity.0.set_y(new_y);
+                if input.pressed(KeyCode::Right) {
+                    velocity.0.set_x(player::MOVEMENT_VELOCITY);
+                }
+            }
+        },
+        _ => {}
     }
 }
 
