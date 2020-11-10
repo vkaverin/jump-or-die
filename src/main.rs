@@ -26,7 +26,7 @@ fn main() {
         .add_system(systems::input::input.system())
         .add_system(systems::physics::movement.system())
         .add_system(systems::physics::gravity.system())
-        // .add_system(collisions.system())
+        .add_system(systems::physics::collisions.system())
         .run();
 }
 
