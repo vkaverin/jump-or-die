@@ -19,6 +19,7 @@ pub enum PlayerMovementState {
     Staying,
     Running,
     Jumping,
+    Falling,
 }
 
 impl Player {
