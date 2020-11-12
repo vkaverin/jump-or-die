@@ -41,7 +41,7 @@ fn input_on_running_game(
     if input.pressed(KeyCode::R) {
         velocity.0.set_x(0.0);
         velocity.0.set_y(0.0);
-        transform.translation.set_x(player::INITIAL_POSITION_Y);
+        transform.translation.set_x(player::INITIAL_POSITION_X);
         transform.translation.set_y(player::INITIAL_POSITION_Y);
     }
 
