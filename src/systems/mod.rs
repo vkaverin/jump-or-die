@@ -5,3 +5,4 @@ pub mod events;
 pub mod spawning;
 pub mod awards;
 pub mod scoreboard;
+pub mod screen;

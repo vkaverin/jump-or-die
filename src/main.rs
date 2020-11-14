@@ -4,7 +4,7 @@ mod systems;
 mod world;
 mod enemies;
 
-use crate::game::{Game, GameStateEvent, Scoreboard};
+use crate::game::{Game, GameStateEvent, Scoreboard, GameStateLabel};
 use crate::player::{Player, PlayerEvent};
 use crate::systems::debug::DebugPlugin;
 use crate::world::{AffectedByGravity, Collidable, Gravity, Velocity};
@@ -27,6 +27,7 @@ fn main() {
         .add_event::<GameStateEvent>()
         .add_event::<PlayerEvent>()
         .add_startup_system(setup.system())
+        .add_system(systems::screen::game_state_screen.system())
         .add_system(systems::input::input.system())
         .add_system(systems::spawning::drop_enemies.system())
         .add_system(systems::spawning::spawn_new_enemy.system())
@@ -89,5 +90,23 @@ fn setup(
                     ..Default::default()
                 },
                 ..Default::default()
-            });
+            })
+
+        .spawn((GameStateLabel,))
+        .with_bundle(TextComponents {
+            text: Text {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                style: TextStyle {
+                    color: Color::rgb(0.5, 0.5, 0.5),
+                    font_size: 120.0,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            style: Style {
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                ..Default::default()
+            },
+            ..Default::default()
+        });
 }

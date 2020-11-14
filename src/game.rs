@@ -44,3 +44,5 @@ impl Game {
 }
 
 pub struct Scoreboard;
+
+pub struct GameStateLabel;
