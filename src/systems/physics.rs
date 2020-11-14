@@ -23,6 +23,7 @@ pub fn gravity(
 
 pub fn movement(
     time: Res<Time>,
+    game_window: Res<WindowDescriptor>,
     game: Res<Game>,
     mut player_entity_query: Query<(Entity, &mut Player)>,
     mut query: Query<(Entity, &mut Velocity, &Sprite, &mut Transform)>
@@ -30,6 +31,10 @@ pub fn movement(
     if game.state != GameState::Running {
         return;
     }
+
+    let window_half_x = game_window.width as f32 / 2.0;
+    let window_left_border = -window_half_x;
+    let window_right_border = window_half_x;
 
     for (entity, mut velocity, sprite, mut transform) in query.iter_mut() {
         *transform.translation.x_mut() += velocity.0.x() * time.delta_seconds;
@@ -42,6 +47,15 @@ pub fn movement(
 
         for (player_entity, mut player) in player_entity_query.iter_mut() {
             if entity == player_entity {
+                let player_sprite_half_x = sprite.size.x() / 2.0;
+
+                if transform.translation.x() - player_sprite_half_x <= window_left_border {
+                    transform.translation.set_x(window_left_border + player_sprite_half_x);
+                    velocity.0.set_x(0.0);
+                } else if transform.translation.x() + player_sprite_half_x >= window_right_border {
+                    transform.translation.set_x(window_right_border - player_sprite_half_x);
+                    velocity.0.set_x(0.0);
+                }
                 player::update_movement_state(&mut player, &velocity);
             }
         }
