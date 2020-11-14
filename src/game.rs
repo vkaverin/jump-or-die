@@ -16,6 +16,7 @@ pub enum GameState {
 pub struct Game {
     pub state: GameState,
     pub score: f32,
+    pub best_score: f32,
 }
 
 impl Game {
@@ -23,6 +24,7 @@ impl Game {
         Game {
             state: GameState::WaitingForStart,
             score: 0.0,
+            best_score: 0.0,
         }
     }
 
@@ -36,6 +38,8 @@ impl Game {
                 self.score += score;
             }
         }
+
+        self.best_score = self.best_score.max(self.score);
     }
 }
 
