@@ -24,6 +24,7 @@ pub fn spawn_new_enemy(
     }
 
     spawn_timer.timer.duration = thread_rng().gen_range(2.0, 3.0);
+    let mut rng = thread_rng();
 
     commands
         .spawn((Enemy, ))
@@ -32,7 +33,11 @@ pub fn spawn_new_enemy(
         .with(Collidable)
         .with_bundle(SpriteComponents {
             sprite: Sprite::new(Vec2::new(enemies::WIDTH, enemies::HEIGHT)),
-            material: materials.add(Color::BLACK.into()),
+            material: materials.add(Color::rgb(
+                rng.gen_range(0.0, 1.0),
+                rng.gen_range(0.0, 1.0),
+                rng.gen_range(0.0, 1.0),
+            ).into()),
             transform: Transform::from_translation(Vec3::new(enemies::INITIAL_POSITION_X, enemies::INITIAL_POSITION_Y, 0.0)),
             ..Default::default()
         });
