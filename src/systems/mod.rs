@@ -1,4 +1,5 @@
 pub mod debug;
 pub mod input;
 pub mod physics;
-mod setup;
+pub mod events;
+pub mod spawning;

@@ -1,8 +1,8 @@
 use crate::world::{Gravity, Velocity, Collidable};
 use bevy::prelude::*;
-use crate::player::{Player, PlayerMovementState};
+use crate::player::{self, Player, PlayerMovementState, PlayerEvent};
 use crate::game::{Game, GameState};
-use bevy::sprite::collide_aabb::{collide, Collision};
+use bevy::sprite::collide_aabb::{self, Collision};
 
 pub fn gravity(
     time: Res<Time>,
@@ -42,23 +42,29 @@ pub fn movement(
 
         for (player_entity, mut player) in player_entity_query.iter_mut() {
             if entity == player_entity {
-                update_player_movement_state(&mut player, &velocity);
+                player::update_movement_state(&mut player, &velocity);
             }
         }
     }
 }
 
-fn update_player_movement_state(
-    player: &mut Player,
-    velocity: &Velocity
+pub fn collisions(
+    mut events: ResMut<Events<PlayerEvent>>,
+    player_query: Query<(&Player, &Sprite, &Transform)>,
+    collidables: Query<(&Collidable, &Sprite, &Transform)>,
 ) {
-    if velocity.0.y() > 0.0 {
-        player.movement_state = PlayerMovementState::Jumping;
-    } else if velocity.0.y() < 0.0 {
-        player.movement_state = PlayerMovementState::Falling;
-    } else if velocity.0.x() != 0.0 {
-        player.movement_state = PlayerMovementState::Running
-    } else {
-        player.movement_state = PlayerMovementState::Staying;
+
+    for (_player, player_sprite, player_transform) in player_query.iter() {
+        for (_collidable, collidable_sprite, collidable_transform) in collidables.iter() {
+            if let Some(collision) = collide_aabb::collide(
+                player_transform.translation,
+                player_sprite.size,
+                collidable_transform.translation,
+                collidable_sprite.size
+            ) {
+                events.send(PlayerEvent::Hit);
+                break;
+            }
+        }
     }
 }

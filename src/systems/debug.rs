@@ -16,13 +16,14 @@ impl Plugin for DebugPlugin {
     }
 }
 
-fn debug_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn debug_setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
     commands.spawn((DebugUiPanel,)).with_bundle(TextComponents {
         text: Text {
             font: asset_server.load("fonts/FiraSans-Bold.ttf"),
             style: TextStyle {
                 color: Color::rgb(0.5, 0.5, 0.5),
                 font_size: 20.0,
+                ..Default::default()
             },
             ..Default::default()
         },

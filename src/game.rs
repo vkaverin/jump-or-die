@@ -1,3 +1,7 @@
+pub enum GameStateEvent {
+    Restart,
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum GameState {
     WaitingForStart,
@@ -18,5 +22,9 @@ impl Game {
             state: GameState::WaitingForStart,
             score: 0.0,
         }
+    }
+
+    pub fn is_running(&self) -> bool {
+        self.state == GameState::Running
     }
 }
