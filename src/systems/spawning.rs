@@ -36,3 +36,20 @@ pub fn spawn_new_enemy(
             ..Default::default()
         });
 }
+
+pub fn drop_enemies(
+    commands: &mut Commands,
+    game_window: Res<WindowDescriptor>,
+    game: Res<Game>,
+    query: Query<(Entity, &Sprite, &Transform), With<Enemy>>
+) {
+    if !game.is_running() {
+        return;
+    }
+
+    for (enemy_entity, sprite, transform) in query.iter() {
+        if transform.translation.x() + sprite.size.x() < -(game_window.width as f32) / 2.0 {
+            commands.despawn(enemy_entity);
+        }
+    }
+}

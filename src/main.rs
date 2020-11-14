@@ -28,6 +28,7 @@ fn main() {
         .add_event::<PlayerEvent>()
         .add_startup_system(setup.system())
         .add_system(systems::input::input.system())
+        .add_system(systems::spawning::drop_enemies.system())
         .add_system(systems::spawning::spawn_new_enemy.system())
         .add_system(systems::physics::movement.system())
         .add_system(systems::physics::gravity.system())
