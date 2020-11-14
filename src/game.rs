@@ -1,3 +1,5 @@
+use crate::enemies::Award;
+
 pub enum GameStateEvent {
     Restart,
 }
@@ -27,4 +29,14 @@ impl Game {
     pub fn is_running(&self) -> bool {
         self.state == GameState::Running
     }
+
+    pub fn consume_award(&mut self, award: &Award) {
+        match award {
+            Award::Score(score) => {
+                self.score += score;
+            }
+        }
+    }
 }
+
+pub struct Scoreboard;

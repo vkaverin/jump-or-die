@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::enemies::{SpawnTimer, Enemy};
+use crate::enemies::{SpawnTimer, Enemy, Award, GivesAward};
 use crate::game::{Game, GameState};
 use crate::world::{Velocity, Collidable};
 use crate::enemies;
@@ -27,6 +27,7 @@ pub fn spawn_new_enemy(
 
     commands
         .spawn((Enemy, ))
+        .with(GivesAward::new(Award::Score(enemies::SCORE)))
         .with(Velocity(Vec2::new(-enemies::VELOCITY_X, enemies::VELOCITY_Y)))
         .with(Collidable)
         .with_bundle(SpriteComponents {

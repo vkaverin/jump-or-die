@@ -43,6 +43,7 @@ fn restart_game(
     enemies_query: &Query<(Entity), With<Enemy>>
 ) {
     game.state = GameState::Running;
+    game.score = 0.0;
     for (mut velocity, mut transform) in player_query.iter_mut() {
         velocity.0 = Vec2::zero();
         transform.translation.set_x(player::INITIAL_POSITION_X);

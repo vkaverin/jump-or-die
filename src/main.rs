@@ -4,7 +4,7 @@ mod systems;
 mod world;
 mod enemies;
 
-use crate::game::{Game, GameStateEvent};
+use crate::game::{Game, GameStateEvent, Scoreboard};
 use crate::player::{Player, PlayerEvent};
 use crate::systems::debug::DebugPlugin;
 use crate::world::{AffectedByGravity, Collidable, Gravity, Velocity};
@@ -33,12 +33,19 @@ fn main() {
         .add_system(systems::physics::movement.system())
         .add_system(systems::physics::gravity.system())
         .add_system(systems::physics::collisions.system())
+        .add_system(systems::awards::collect_enemy_awards.system())
         .add_system(systems::events::player_events.system())
         .add_system(systems::events::game_state_events.system())
+        .add_system(systems::scoreboard::scoreboard.system())
         .run();
 }
 
-fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
+fn setup(
+    commands: &mut Commands,
+    asset_server: Res<AssetServer>,
+    window: Res<WindowDescriptor>,
+    mut materials: ResMut<Assets<ColorMaterial>>
+) {
     commands
         .spawn(Camera2dComponents::default())
         .spawn(UiCameraComponents::default())
@@ -60,5 +67,27 @@ fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) 
             material: materials.add(Color::BLACK.into()),
             transform: Transform::from_translation(Vec3::new(0.0, -((world::SCREEN_HEIGHT / 2) as f32), 0.0)),
             ..Default::default()
-        });
+        })
+        .spawn((Scoreboard,))
+            .with_bundle(TextComponents {
+                text: Text {
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    style: TextStyle {
+                        color: Color::rgb(0.5, 0.5, 0.5),
+                        font_size: 40.0,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    position: Rect {
+                        top: Val::Px(5.0),
+                        right: Val::Px(5.0),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                ..Default::default()
+            });
 }
