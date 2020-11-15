@@ -7,9 +7,9 @@ pub fn input(
     input: Res<Input<KeyCode>>,
     mut game: ResMut<Game>,
     mut game_events: ResMut<Events<GameStateEvent>>,
-    mut query: Query<(&mut Player, &mut Velocity, &mut Transform)>
+    mut query: Query<(&mut Player, &mut Velocity)>
 ) {
-    for (mut player, mut velocity, mut transform) in query.iter_mut() {
+    for (mut player, mut velocity) in query.iter_mut() {
         match game.state {
             GameState::WaitingForStart => {
                 if input.pressed(KeyCode::Space) {
@@ -31,10 +31,10 @@ pub fn input(
 
 fn input_on_running_game(
     input: &Res<Input<KeyCode>>,
-    mut game_events: &mut ResMut<Events<GameStateEvent>>,
-    mut game: &mut ResMut<Game>,
-    mut player: &mut Mut<Player>,
-    mut velocity: &mut Mut<Velocity>,
+    game_events: &mut ResMut<Events<GameStateEvent>>,
+    game: &mut ResMut<Game>,
+    player: &mut Mut<Player>,
+    velocity: &mut Mut<Velocity>,
 ) {
     if input.just_pressed(KeyCode::R) {
         game_events.send(GameStateEvent::Restart);
@@ -69,8 +69,8 @@ fn input_on_running_game(
 
 fn input_on_paused_game(
     input: &Res<Input<KeyCode>>,
-    mut game_events: &mut ResMut<Events<GameStateEvent>>,
-    mut game: &mut ResMut<Game>,
+    game_events: &mut ResMut<Events<GameStateEvent>>,
+    game: &mut ResMut<Game>,
 ) {
     if input.just_pressed(KeyCode::R) {
         game_events.send(GameStateEvent::Restart);
@@ -84,7 +84,7 @@ fn input_on_paused_game(
 
 fn input_on_game_over(
     input: &Res<Input<KeyCode>>,
-    mut game_events: &mut ResMut<Events<GameStateEvent>>,
+    game_events: &mut ResMut<Events<GameStateEvent>>,
 ) {
     if input.just_pressed(KeyCode::R) {
         game_events.send(GameStateEvent::Restart);

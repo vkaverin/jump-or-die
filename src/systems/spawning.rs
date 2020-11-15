@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 use crate::enemies::{SpawnTimer, Enemy, Award, GivesAward};
-use crate::game::{Game, GameState};
+use crate::game::{Game};
 use crate::world::{Velocity, Collidable};
 use crate::enemies;
-use crate::player::Player;
-use rand::{random, thread_rng, Rng};
+use rand::{thread_rng, Rng};
 
 pub fn spawn_new_enemy(
     commands: &mut Commands,

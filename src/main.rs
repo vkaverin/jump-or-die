@@ -7,11 +7,10 @@ mod enemies;
 use crate::game::{Game, GameStateEvent, Scoreboard, GameStateLabel};
 use crate::player::{Player, PlayerEvent};
 use crate::systems::debug::DebugPlugin;
-use crate::world::{AffectedByGravity, Collidable, Gravity, Velocity};
-use bevy::diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin};
+use crate::world::{AffectedByGravity, Gravity, Velocity};
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
-use bevy::sprite::collide_aabb::{collide, Collision};
-use crate::enemies::{Enemy, SpawnTimer};
+use crate::enemies::{SpawnTimer};
 
 fn main() {
     App::build()
@@ -44,7 +43,6 @@ fn main() {
 fn setup(
     commands: &mut Commands,
     asset_server: Res<AssetServer>,
-    window: Res<WindowDescriptor>,
     mut materials: ResMut<Assets<ColorMaterial>>
 ) {
     commands

@@ -9,19 +9,19 @@ pub fn game_state_screen(
         match game.state {
             GameState::WaitingForStart => {
                 draw.is_visible = true;
-                text.value = format!("Press Space to start");
+                (*text).value = "Press Space to start".to_string();
             }
             GameState::Running => {
                 draw.is_visible = false;
-                text.value = format!("Press Space to start");
+                (*text).value = "".to_string();
             }
             GameState::Paused => {
                 draw.is_visible = true;
-                text.value = format!("Paused");
+                (*text).value = "Paused".to_string();
             }
             GameState::GameOver => {
                 draw.is_visible = true;
-                text.value = format!("Game over!\nYour score: {}\nPress R to restart", game.score);
+                (*text).value = format!("Game over!\nYour score: {}\nPress R to restart", game.score);
             }
         }
     }

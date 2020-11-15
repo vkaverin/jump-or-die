@@ -25,7 +25,7 @@ pub fn game_state_events(
     mut event_reader: Local<EventReader<GameStateEvent>>,
     mut game: ResMut<Game>,
     mut player_query: Query<(&mut Velocity, &mut Transform), With<Player>>,
-    enemies_query: Query<(Entity), With<Enemy>>
+    enemies_query: Query<Entity, With<Enemy>>
 ) {
     for e in event_reader.iter(&events) {
         match e {
@@ -39,8 +39,8 @@ pub fn game_state_events(
 fn restart_game(
     commands: &mut Commands,
     game: &mut ResMut<Game>,
-    mut player_query: &mut Query<(&mut Velocity, &mut Transform), With<Player>>,
-    enemies_query: &Query<(Entity), With<Enemy>>
+    player_query: &mut Query<(&mut Velocity, &mut Transform), With<Player>>,
+    enemies_query: &Query<Entity, With<Enemy>>
 ) {
     game.state = GameState::Running;
     game.score = 0.0;
@@ -50,7 +50,7 @@ fn restart_game(
         transform.translation.set_y(player::INITIAL_POSITION_Y);
     }
 
-    for (enemy_entity) in enemies_query.iter() {
+    for enemy_entity in enemies_query.iter() {
         commands.despawn(enemy_entity);
     }
 }

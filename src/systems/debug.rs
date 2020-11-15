@@ -50,36 +50,36 @@ fn print_debug_data(
 ) {
     for (_panel, mut text) in ui_query.iter_mut() {
         for (player, velocity, transform) in info_query.iter() {
-            text.value.truncate(0);
-            text.value.push_str(&format!("{:?}", player));
-            text.value.push_str(&format!("\n{:?}", game));
-            text.value.push_str(&format!(
+            (*text).value.truncate(0);
+            (*text).value.push_str(&format!("{:?}", player));
+            (*text).value.push_str(&format!("\n{:?}", game));
+            (*text).value.push_str(&format!(
                 "\nvelocity: (x = {},  y = {})",
                 velocity.0.x(),
                 velocity.0.y()
             ));
-            text.value.push_str(&format!(
+            (*text).value.push_str(&format!(
                 "\nposition: (x = {},  y = {})",
                 transform.translation.x(),
                 transform.translation.y()
             ));
-            text.value
+            (*text).value
                 .push_str(&format!("\ngravity: {}", time.delta_seconds * gravity.0));
             if let Some(measurement) = diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FPS)
             {
-                text.value
+                (*text).value
                     .push_str(&format!("\nFPS: {}", measurement.value));
             }
             if let Some(measurement) =
                 diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_TIME)
             {
-                text.value
+                (*text).value
                     .push_str(&format!("\nframe time: {}", measurement.value));
             }
             if let Some(measurement) =
                 diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_COUNT)
             {
-                text.value
+                (*text).value
                     .push_str(&format!("\nframes count: {}", measurement.value));
             }
         }

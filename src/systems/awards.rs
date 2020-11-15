@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use crate::game::Game;
-use crate::enemies::{Enemy, Award, GivesAward};
+use crate::enemies::{Enemy, GivesAward};
 use crate::player::Player;
 
 pub fn collect_enemy_awards(

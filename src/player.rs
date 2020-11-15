@@ -21,10 +21,6 @@ impl Player {
             movement_state: PlayerMovementState::Staying,
         }
     }
-
-    pub fn reset(&mut self) {
-        self.movement_state = PlayerMovementState::Staying;
-    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
