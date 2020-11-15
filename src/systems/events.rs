@@ -4,21 +4,35 @@ use crate::player;
 use crate::player::{Player, PlayerEvent};
 use crate::world::Velocity;
 use bevy::prelude::*;
+use crate::effects::{Effects, Effect, EffectType};
 
 pub fn player_events(
+    commands: &mut Commands,
     mut game: ResMut<Game>,
     mut event_reader: Local<EventReader<PlayerEvent>>,
     events: Res<Events<PlayerEvent>>,
-    mut player_query: Query<&mut Player>
+    mut player_query: Query<(Entity, &mut Player, &mut Effects)>
 ) {
     for e in event_reader.iter(&events) {
         match e {
             PlayerEvent::Hit => {
-                for mut player in player_query.iter_mut() {
-                    if player.health > 0 {
+                for (entity, mut player, mut effects) in player_query.iter_mut() {
+                    let is_invulnerable = {
+                        let mut is_invulnerable = false;
+                        for effect in &effects.effects {
+                            if effect.effect_type == EffectType::Invulnerable && !effect.is_expired() {
+                                is_invulnerable = true;
+                            }
+                        }
+                        is_invulnerable
+                    };
+
+                    if !is_invulnerable && player.health > 0 {
                         player.health -= 1;
                         if player.health == 0 {
                             game.state = GameState::GameOver;
+                        } else {
+                            commands.insert_one(entity, effects.effects.push(Effect::new_temporary(EffectType::Invulnerable, 3.0)));
                         }
                     }
                 }

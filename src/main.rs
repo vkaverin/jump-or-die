@@ -3,6 +3,7 @@ mod game;
 mod player;
 mod systems;
 mod world;
+mod effects;
 
 use crate::enemies::SpawnTimer;
 use crate::game::{Game, GameStateEvent};
@@ -12,6 +13,7 @@ use crate::world::{AffectedByGravity, Gravity, Velocity};
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 use crate::systems::hud::HudPlugin;
+use crate::effects::Effects;
 
 fn main() {
     App::build()
@@ -30,6 +32,7 @@ fn main() {
         .add_plugin(HudPlugin)
         .add_system(systems::input::input.system())
         .add_system(systems::spawning::drop_enemies.system())
+        .add_system(systems::gameplay::cleanup_effects.system())
         .add_system(systems::spawning::spawn_new_enemy.system())
         .add_system(systems::physics::movement.system())
         .add_system(systems::physics::gravity.system())
@@ -54,6 +57,7 @@ fn setup(
             timer: Timer::from_seconds(3.0, true),
         })
         .spawn((Player::new(),))
+        .with(Effects::new())
         .with(Velocity(Vec2::new(0.0, 0.0)))
         .with(AffectedByGravity)
         .with_bundle(SpriteComponents {
