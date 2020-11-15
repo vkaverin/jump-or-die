@@ -81,7 +81,6 @@ pub fn collisions(
             );
             if maybe_collision.is_some() {
                 events.send(PlayerEvent::Hit);
-                break;
             }
         }
     }

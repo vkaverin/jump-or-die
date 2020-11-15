@@ -13,12 +13,16 @@ pub const MOVEMENT_VELOCITY: f32 = 400.0;
 #[derive(Debug)]
 pub struct Player {
     pub movement_state: PlayerMovementState,
+    pub health: u8,
+    pub max_health: u8,
 }
 
 impl Player {
     pub fn new() -> Self {
         Player {
             movement_state: PlayerMovementState::Staying,
+            health: 3,
+            max_health: 3,
         }
     }
 }

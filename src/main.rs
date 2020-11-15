@@ -5,12 +5,13 @@ mod systems;
 mod world;
 
 use crate::enemies::SpawnTimer;
-use crate::game::{Game, GameStateEvent, GameStateLabel, Scoreboard};
+use crate::game::{Game, GameStateEvent};
 use crate::player::{Player, PlayerEvent};
 use crate::systems::debug::DebugPlugin;
 use crate::world::{AffectedByGravity, Gravity, Velocity};
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
+use crate::systems::hud::HudPlugin;
 
 fn main() {
     App::build()
@@ -26,7 +27,7 @@ fn main() {
         .add_event::<GameStateEvent>()
         .add_event::<PlayerEvent>()
         .add_startup_system(setup.system())
-        .add_system(systems::screen::game_state_screen.system())
+        .add_plugin(HudPlugin)
         .add_system(systems::input::input.system())
         .add_system(systems::spawning::drop_enemies.system())
         .add_system(systems::spawning::spawn_new_enemy.system())
@@ -36,13 +37,11 @@ fn main() {
         .add_system(systems::awards::collect_enemy_awards.system())
         .add_system(systems::events::player_events.system())
         .add_system(systems::events::game_state_events.system())
-        .add_system(systems::scoreboard::scoreboard.system())
         .run();
 }
 
 fn setup(
     commands: &mut Commands,
-    asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     commands
@@ -78,45 +77,6 @@ fn setup(
                 -((world::SCREEN_HEIGHT / 2) as f32),
                 0.0,
             )),
-            ..Default::default()
-        })
-        .spawn((Scoreboard,))
-        .with_bundle(TextComponents {
-            text: Text {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                style: TextStyle {
-                    color: Color::rgb(0.5, 0.5, 0.5),
-                    font_size: 40.0,
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-            style: Style {
-                position_type: PositionType::Absolute,
-                position: Rect {
-                    top: Val::Px(5.0),
-                    right: Val::Px(5.0),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-            ..Default::default()
-        })
-        .spawn((GameStateLabel,))
-        .with_bundle(TextComponents {
-            text: Text {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                style: TextStyle {
-                    color: Color::rgb(0.5, 0.5, 0.5),
-                    font_size: 120.0,
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-            style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                ..Default::default()
-            },
             ..Default::default()
         });
 }

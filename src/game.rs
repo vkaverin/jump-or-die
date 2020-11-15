@@ -42,7 +42,3 @@ impl Game {
         self.best_score = self.best_score.max(self.score);
     }
 }
-
-pub struct Scoreboard;
-
-pub struct GameStateLabel;
