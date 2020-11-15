@@ -1,14 +1,14 @@
-use bevy::prelude::*;
-use crate::game::{GameState, Game, GameStateEvent};
-use crate::player::{PlayerEvent, Player};
-use crate::world::Velocity;
 use crate::enemies::Enemy;
+use crate::game::{Game, GameState, GameStateEvent};
 use crate::player;
+use crate::player::{Player, PlayerEvent};
+use crate::world::Velocity;
+use bevy::prelude::*;
 
 pub fn player_events(
     mut game: ResMut<Game>,
     mut event_reader: Local<EventReader<PlayerEvent>>,
-    events: Res<Events<PlayerEvent>>
+    events: Res<Events<PlayerEvent>>,
 ) {
     for e in event_reader.iter(&events) {
         match e {
@@ -25,7 +25,7 @@ pub fn game_state_events(
     mut event_reader: Local<EventReader<GameStateEvent>>,
     mut game: ResMut<Game>,
     mut player_query: Query<(&mut Velocity, &mut Transform), With<Player>>,
-    enemies_query: Query<Entity, With<Enemy>>
+    enemies_query: Query<Entity, With<Enemy>>,
 ) {
     for e in event_reader.iter(&events) {
         match e {
@@ -40,7 +40,7 @@ fn restart_game(
     commands: &mut Commands,
     game: &mut ResMut<Game>,
     player_query: &mut Query<(&mut Velocity, &mut Transform), With<Player>>,
-    enemies_query: &Query<Entity, With<Enemy>>
+    enemies_query: &Query<Entity, With<Enemy>>,
 ) {
     game.state = GameState::Running;
     game.score = 0.0;

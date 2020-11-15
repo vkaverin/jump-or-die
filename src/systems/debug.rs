@@ -1,9 +1,9 @@
 use crate::world::{Gravity, Velocity};
 
+use crate::game::Game;
 use crate::player::Player;
 use bevy::diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
-use crate::game::Game;
 
 pub struct DebugUiPanel;
 
@@ -63,23 +63,27 @@ fn print_debug_data(
                 transform.translation.x(),
                 transform.translation.y()
             ));
-            (*text).value
+            (*text)
+                .value
                 .push_str(&format!("\ngravity: {}", time.delta_seconds * gravity.0));
             if let Some(measurement) = diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FPS)
             {
-                (*text).value
+                (*text)
+                    .value
                     .push_str(&format!("\nFPS: {}", measurement.value));
             }
             if let Some(measurement) =
                 diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_TIME)
             {
-                (*text).value
+                (*text)
+                    .value
                     .push_str(&format!("\nframe time: {}", measurement.value));
             }
             if let Some(measurement) =
                 diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_COUNT)
             {
-                (*text).value
+                (*text)
+                    .value
                     .push_str(&format!("\nframes count: {}", measurement.value));
             }
         }

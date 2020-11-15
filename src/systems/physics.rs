@@ -1,7 +1,7 @@
-use crate::world::{Gravity, Velocity, Collidable};
-use bevy::prelude::*;
-use crate::player::{self, Player, PlayerEvent};
 use crate::game::{Game, GameState};
+use crate::player::{self, Player, PlayerEvent};
+use crate::world::{Collidable, Gravity, Velocity};
+use bevy::prelude::*;
 use bevy::sprite::collide_aabb;
 
 pub fn gravity(
@@ -14,7 +14,7 @@ pub fn gravity(
         return;
     }
 
-    for (mut velocity, sprite,  transform) in query.iter_mut() {
+    for (mut velocity, sprite, transform) in query.iter_mut() {
         if transform.translation.y() > sprite.size.y() / 2.0 {
             *velocity.0.y_mut() -= gravity.0 * time.delta_seconds;
         }
@@ -26,7 +26,7 @@ pub fn movement(
     game_window: Res<WindowDescriptor>,
     game: Res<Game>,
     mut player_entity_query: Query<(Entity, &mut Player)>,
-    mut query: Query<(Entity, &mut Velocity, &Sprite, &mut Transform)>
+    mut query: Query<(Entity, &mut Velocity, &Sprite, &mut Transform)>,
 ) {
     if game.state != GameState::Running {
         return;
@@ -50,10 +50,14 @@ pub fn movement(
                 let player_sprite_half_x = sprite.size.x() / 2.0;
 
                 if transform.translation.x() - player_sprite_half_x <= window_left_border {
-                    transform.translation.set_x(window_left_border + player_sprite_half_x);
+                    transform
+                        .translation
+                        .set_x(window_left_border + player_sprite_half_x);
                     velocity.0.set_x(0.0);
                 } else if transform.translation.x() + player_sprite_half_x >= window_right_border {
-                    transform.translation.set_x(window_right_border - player_sprite_half_x);
+                    transform
+                        .translation
+                        .set_x(window_right_border - player_sprite_half_x);
                     velocity.0.set_x(0.0);
                 }
                 player::update_movement_state(&mut player, &velocity);
@@ -67,14 +71,13 @@ pub fn collisions(
     player_query: Query<(&Player, &Sprite, &Transform)>,
     collidables: Query<(&Collidable, &Sprite, &Transform)>,
 ) {
-
     for (_player, player_sprite, player_transform) in player_query.iter() {
         for (_collidable, collidable_sprite, collidable_transform) in collidables.iter() {
             let maybe_collision = collide_aabb::collide(
                 player_transform.translation,
                 player_sprite.size,
                 collidable_transform.translation,
-                collidable_sprite.size
+                collidable_sprite.size,
             );
             if maybe_collision.is_some() {
                 events.send(PlayerEvent::Hit);

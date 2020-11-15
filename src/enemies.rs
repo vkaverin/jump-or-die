@@ -15,11 +15,11 @@ pub const SCORE: f32 = 50.0;
 pub struct Enemy;
 
 pub struct SpawnTimer {
-    pub timer: Timer
+    pub timer: Timer,
 }
 
 pub enum Award {
-    Score(f32)
+    Score(f32),
 }
 
 pub struct GivesAward {
@@ -28,11 +28,10 @@ pub struct GivesAward {
 }
 
 impl GivesAward {
-
     pub fn new(award: Award) -> Self {
         Self {
             already_taken: false,
-            award
+            award,
         }
     }
 

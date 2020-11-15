@@ -1,9 +1,9 @@
+use crate::game::{Game, GameState, GameStateLabel};
 use bevy::prelude::*;
-use crate::game::{Game, GameStateLabel, GameState};
 
 pub fn game_state_screen(
     game: Res<Game>,
-    mut query: Query<(&mut Text, &mut Draw), With<GameStateLabel>>
+    mut query: Query<(&mut Text, &mut Draw), With<GameStateLabel>>,
 ) {
     for (mut text, mut draw) in query.iter_mut() {
         match game.state {
@@ -21,7 +21,8 @@ pub fn game_state_screen(
             }
             GameState::GameOver => {
                 draw.is_visible = true;
-                (*text).value = format!("Game over!\nYour score: {}\nPress R to restart", game.score);
+                (*text).value =
+                    format!("Game over!\nYour score: {}\nPress R to restart", game.score);
             }
         }
     }

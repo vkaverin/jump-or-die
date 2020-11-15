@@ -35,10 +35,7 @@ pub enum PlayerEvent {
     Hit,
 }
 
-pub fn update_movement_state(
-    player: &mut Player,
-    velocity: &Velocity
-) {
+pub fn update_movement_state(player: &mut Player, velocity: &Velocity) {
     if velocity.0.y() > 0.0 {
         player.movement_state = PlayerMovementState::Jumping;
     } else if velocity.0.y() < 0.0 {

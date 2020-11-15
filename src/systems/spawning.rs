@@ -1,8 +1,8 @@
-use bevy::prelude::*;
-use crate::enemies::{SpawnTimer, Enemy, Award, GivesAward};
-use crate::game::{Game};
-use crate::world::{Velocity, Collidable};
 use crate::enemies;
+use crate::enemies::{Award, Enemy, GivesAward, SpawnTimer};
+use crate::game::Game;
+use crate::world::{Collidable, Velocity};
+use bevy::prelude::*;
 use rand::{thread_rng, Rng};
 
 pub fn spawn_new_enemy(
@@ -10,7 +10,7 @@ pub fn spawn_new_enemy(
     time: Res<Time>,
     game: Res<Game>,
     mut spawn_timer: ResMut<SpawnTimer>,
-    mut materials: ResMut<Assets<ColorMaterial>>
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     if !game.is_running() {
         return;
@@ -26,18 +26,28 @@ pub fn spawn_new_enemy(
     let mut rng = thread_rng();
 
     commands
-        .spawn((Enemy, ))
+        .spawn((Enemy,))
         .with(GivesAward::new(Award::Score(enemies::SCORE)))
-        .with(Velocity(Vec2::new(-enemies::VELOCITY_X, enemies::VELOCITY_Y)))
+        .with(Velocity(Vec2::new(
+            -enemies::VELOCITY_X,
+            enemies::VELOCITY_Y,
+        )))
         .with(Collidable)
         .with_bundle(SpriteComponents {
             sprite: Sprite::new(Vec2::new(enemies::WIDTH, enemies::HEIGHT)),
-            material: materials.add(Color::rgb(
-                rng.gen_range(0.0, 1.0),
-                rng.gen_range(0.0, 1.0),
-                rng.gen_range(0.0, 1.0),
-            ).into()),
-            transform: Transform::from_translation(Vec3::new(enemies::INITIAL_POSITION_X, enemies::INITIAL_POSITION_Y, 0.0)),
+            material: materials.add(
+                Color::rgb(
+                    rng.gen_range(0.0, 1.0),
+                    rng.gen_range(0.0, 1.0),
+                    rng.gen_range(0.0, 1.0),
+                )
+                .into(),
+            ),
+            transform: Transform::from_translation(Vec3::new(
+                enemies::INITIAL_POSITION_X,
+                enemies::INITIAL_POSITION_Y,
+                0.0,
+            )),
             ..Default::default()
         });
 }
@@ -46,7 +56,7 @@ pub fn drop_enemies(
     commands: &mut Commands,
     game_window: Res<WindowDescriptor>,
     game: Res<Game>,
-    query: Query<(Entity, &Sprite, &Transform), With<Enemy>>
+    query: Query<(Entity, &Sprite, &Transform), With<Enemy>>,
 ) {
     if !game.is_running() {
         return;
