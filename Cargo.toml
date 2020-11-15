@@ -1,5 +1,5 @@
 [package]
-name = "bevy-sandbox"
+name = "move-jump-or-die"
 version = "0.1.0"
 authors = ["Vladislav Kaverin <vladislav.v.kaverin@gmail.com>"]
 edition = "2018"
