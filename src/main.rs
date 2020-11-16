@@ -48,8 +48,8 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     commands
-        .spawn(Camera2dComponents::default())
-        .spawn(UiCameraComponents::default())
+        .spawn(Camera2dBundle::default())
+        .spawn(UiCameraBundle::default())
         .insert_resource(ClearColor(Color::WHITE))
         .insert_resource(Game::new())
         .insert_resource(Gravity::default())
@@ -60,7 +60,7 @@ fn setup(
         .with(Effects::new())
         .with(Velocity(Vec2::new(0.0, 0.0)))
         .with(AffectedByGravity)
-        .with_bundle(SpriteComponents {
+        .with_bundle(SpriteBundle {
             sprite: Sprite::new(Vec2::new(player::WIDTH, player::HEIGHT)),
             material: materials.add(Color::BLACK.into()),
             transform: Transform::from_translation(Vec3::new(
@@ -70,7 +70,7 @@ fn setup(
             )),
             ..Default::default()
         })
-        .spawn(SpriteComponents {
+        .spawn(SpriteBundle {
             sprite: Sprite::new(Vec2::new(
                 world::SCREEN_WIDTH as f32,
                 world::SCREEN_HEIGHT as f32,

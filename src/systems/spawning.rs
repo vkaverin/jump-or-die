@@ -33,7 +33,7 @@ pub fn spawn_new_enemy(
             enemies::VELOCITY_Y,
         )))
         .with(Collidable)
-        .with_bundle(SpriteComponents {
+        .with_bundle(SpriteBundle {
             sprite: Sprite::new(Vec2::new(enemies::WIDTH, enemies::HEIGHT)),
             material: materials.add(
                 Color::rgb(

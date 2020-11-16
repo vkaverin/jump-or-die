@@ -17,7 +17,7 @@ impl Plugin for DebugPlugin {
 }
 
 fn debug_setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
-    commands.spawn((DebugUiPanel,)).with_bundle(TextComponents {
+    commands.spawn((DebugUiPanel,)).with_bundle(TextBundle {
         text: Text {
             font: asset_server.load("fonts/FiraSans-Bold.ttf"),
             style: TextStyle {

@@ -31,7 +31,7 @@ fn setup_scoreboard(
     asset_server: ResMut<AssetServer>,
 ) {
     commands.spawn((Scoreboard,))
-        .with_bundle(TextComponents {
+        .with_bundle(TextBundle {
             text: Text {
                 font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                 style: TextStyle {
@@ -84,7 +84,7 @@ fn setup_health_bar(
             commands.spawn((HealthBar {
                 heath: health
             }, ))
-                .with_bundle(SpriteComponents {
+                .with_bundle(SpriteBundle {
                     sprite: Sprite::new(Vec2::splat(64.0)),
                     material: material_handle.clone(),
                     transform: Transform::from_translation(Vec3::new(x, game_window.height as f32 / 2.0 - 100.0, 0.0)),
@@ -137,7 +137,7 @@ fn setup_game_status(
     asset_server: ResMut<AssetServer>,
 ) {
     commands.spawn((GameStateLabel,))
-        .with_bundle(TextComponents {
+        .with_bundle(TextBundle {
             text: Text {
                 font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                 style: TextStyle {
