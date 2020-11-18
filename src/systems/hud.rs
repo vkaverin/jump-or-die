@@ -4,12 +4,18 @@ use crate::player::Player;
 
 const STARTUP_STAGE: &str = "hud_startup";
 
+const HEALTH_BAR_WIDTH: f32 = 256.0;
+const HEALTH_BAR_HEIGHT: f32 = 64.0;
+
+const HEALTH_INDICATOR_WIDTH: f32 = 64.0;
+const HEALTH_INDICATOR_HEIGHT: f32 = 64.0;
+
 struct Scoreboard;
 
 struct GameStateLabel;
 
-struct HealthBar {
-    pub heath: u8,
+struct HealthIndicator {
+    pub health: u8,
 }
 
 pub struct HudPlugin;
@@ -62,45 +68,69 @@ fn update_scoreboard(game: Res<Game>, mut query: Query<&mut Text, With<Scoreboar
 
 fn setup_health_bar(
     commands: &mut Commands,
-    game_window: Res<WindowDescriptor>,
     asset_server: ResMut<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     player_query: Query<&Player>
 ) {
     let health_handle = asset_server.load("sprites/health.png");
     let material_handle = materials.add(health_handle.into());
-    let screen_padding = 16.0;
 
-    for player in player_query.iter() {
-        let health_sprite_width = 64.0;
-        for health in 1..=player.max_health {
-            let sprite_padding = screen_padding
-                + health_sprite_width / 2.0
-                + (health - 1) as f32 * 10.0;
-            let sprites_previous_width = (health - 1) as f32 * health_sprite_width;
-            let x = game_window.width as f32 / 2.0
-                - sprite_padding
-                - sprites_previous_width;
-            commands.spawn((HealthBar {
-                heath: health
-            }, ))
-                .with_bundle(SpriteBundle {
-                    sprite: Sprite::new(Vec2::splat(64.0)),
-                    material: material_handle.clone(),
-                    transform: Transform::from_translation(Vec3::new(x, game_window.height as f32 / 2.0 - 100.0, 0.0)),
-                    ..Default::default()
-                });
+    commands.spawn(NodeBundle {
+        material: materials.add(Color::NONE.into()),
+        style: Style {
+            position_type: PositionType::Absolute,
+            position: Rect {
+                left: Val::Px(16.0),
+                top: Val::Px(16.0),
+                ..Default::default()
+            },
+            size: Size {
+                height: Val::Px(HEALTH_BAR_HEIGHT),
+                ..Default::default()
+            },
+            justify_content: JustifyContent::FlexEnd,
+            align_items: AlignItems::Center,
+            ..Default::default()
+        },
+        draw: Draw {
+            is_transparent: true,
+            ..Default::default()
+        },
+        ..Default::default()
+    })
+    .with_children(move |parent| {
+        for player in player_query.iter() {
+            for health in 1..=player.max_health {
+                parent
+                    .spawn(ImageBundle {
+                        style: Style {
+                            max_size: Size::new(Val::Px(HEALTH_INDICATOR_WIDTH), Val::Px(HEALTH_INDICATOR_HEIGHT)),
+                            margin: Rect {
+                                right: Val::Px(16.0),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        },
+                        material: material_handle.clone(),
+                        draw: Draw {
+                            is_transparent: true,
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    })
+                    .with(HealthIndicator { health });
+            }
         }
-    }
+    });
 }
 
 fn update_health_bar(
     player_query: Query<&Player>,
-    mut health_bar_query: Query<(&HealthBar, &mut Draw)>
+    mut health_bar_query: Query<(&HealthIndicator, &mut Draw)>
 ) {
     for player in player_query.iter() {
-        for (health_bar, mut draw) in health_bar_query.iter_mut() {
-            draw.is_visible = health_bar.heath <= player.health;
+        for (health_indicator, mut draw) in health_bar_query.iter_mut() {
+            draw.is_visible = health_indicator.health <= player.health;
         }
     }
 }
