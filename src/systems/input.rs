@@ -2,13 +2,29 @@ use crate::game::{Game, GameState, GameStateEvent};
 use crate::player::{self, Player, PlayerMovementState};
 use crate::world::Velocity;
 use bevy::prelude::*;
+use crate::systems::debug::DebugPanel;
 
 pub fn input(
     input: Res<Input<KeyCode>>,
     mut game: ResMut<Game>,
     mut game_events: ResMut<Events<GameStateEvent>>,
     mut query: Query<(&mut Player, &mut Velocity)>,
+    mut debug_query: Query<(Entity, &Children), With<DebugPanel>>,
+    mut draw_query: Query<&mut Draw>,
 ) {
+    if input.just_pressed(KeyCode::D) {
+        for (entity, children) in debug_query.iter_mut() {
+            if let Ok(mut draw) = draw_query.get_mut(entity) {
+                draw.is_visible = !draw.is_visible;
+            }
+            for child in children.iter() {
+                if let Ok(mut draw) = draw_query.get_mut(*child) {
+                    draw.is_visible = !draw.is_visible;
+                }
+            }
+        }
+    }
+
     for (mut player, mut velocity) in query.iter_mut() {
         match game.state {
             GameState::WaitingForStart => {

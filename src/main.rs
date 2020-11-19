@@ -16,16 +16,18 @@ use crate::systems::hud::HudPlugin;
 use crate::effects::Effects;
 
 fn main() {
-    App::build()
+    let mut app = App::build();
+
+    app
         .add_resource(WindowDescriptor {
             width: world::SCREEN_WIDTH,
             height: world::SCREEN_HEIGHT,
             resizable: false,
             ..Default::default()
         })
-        .add_plugins(DefaultPlugins)
-        .add_plugin(DebugPlugin)
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(DefaultPlugins);
+
+    app
         .add_event::<GameStateEvent>()
         .add_event::<PlayerEvent>()
         .add_startup_system(setup.system())
@@ -39,8 +41,12 @@ fn main() {
         .add_system(systems::physics::collisions.system())
         .add_system(systems::awards::collect_enemy_awards.system())
         .add_system(systems::events::player_events.system())
-        .add_system(systems::events::game_state_events.system())
-        .run();
+        .add_system(systems::events::game_state_events.system());
+
+    #[cfg(feature = "debug_panel")]
+        app.add_plugin(DebugPlugin);
+
+    app.run();
 }
 
 fn setup(

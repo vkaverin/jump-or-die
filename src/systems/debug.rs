@@ -5,86 +5,106 @@ use crate::player::Player;
 use bevy::diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
 
-pub struct DebugUiPanel;
+const PANEL_WIDTH: f32 = 512.0;
 
 pub struct DebugPlugin;
 
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_system(debug_setup.system())
-            .add_system(print_debug_data.system());
+        app.add_plugin(FrameTimeDiagnosticsPlugin::default())
+            .add_startup_system(debug_setup.system())
+            .add_system(update_debug_info_panel.system());
     }
 }
 
-fn debug_setup(commands: &mut Commands, asset_server: Res<AssetServer>) {
-    commands.spawn((DebugUiPanel,)).with_bundle(TextBundle {
-        text: Text {
-            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-            style: TextStyle {
-                color: Color::rgb(0.5, 0.5, 0.5),
-                font_size: 20.0,
-                ..Default::default()
-            },
+pub struct DebugPanel;
+pub struct DebugPanelText;
+
+fn debug_setup(
+    commands: &mut Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    commands.spawn(NodeBundle {
+        style: Style {
+            size: Size::new(Val::Px(PANEL_WIDTH), Val::Percent(100.0)),
             ..Default::default()
         },
-        style: Style {
-            position_type: PositionType::Absolute,
-            position: Rect {
-                top: Val::Px(5.0),
-                left: Val::Px(5.0),
-                ..Default::default()
-            },
+        material: materials.add(Color::rgba(0.0, 0.0, 0.0, 0.9).into()),
+        draw: Draw {
+            is_transparent: true,
             ..Default::default()
         },
         ..Default::default()
+    })
+        .with(DebugPanel)
+        .with_children(|parent| {
+        parent
+            .spawn(TextBundle {
+                text: Text {
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                    style: TextStyle {
+                        color: Color::WHITE,
+                        font_size: 20.0,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    position: Rect {
+                        top: Val::Px(5.0),
+                        left: Val::Px(5.0),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+                draw: Draw {
+                    is_transparent: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            });
     });
 }
 
-fn print_debug_data(
-    time: Res<Time>,
+fn update_debug_info_panel(
     diagnostics: Res<Diagnostics>,
     game: Res<Game>,
-    gravity: Res<Gravity>,
     info_query: Query<(&Player, &Velocity, &Transform)>,
-    mut ui_query: Query<(&DebugUiPanel, &mut Text)>,
+    debug_panels_query: Query<&Children, With<DebugPanel>>,
+    mut text_query: Query<&mut Text>
 ) {
-    for (_panel, mut text) in ui_query.iter_mut() {
-        for (player, velocity, transform) in info_query.iter() {
-            (*text).value.truncate(0);
-            (*text).value.push_str(&format!("{:?}", player));
-            (*text).value.push_str(&format!("\n{:?}", game));
-            (*text).value.push_str(&format!(
-                "\nvelocity: (x = {},  y = {})",
-                velocity.0.x(),
-                velocity.0.y()
-            ));
-            (*text).value.push_str(&format!(
-                "\nposition: (x = {},  y = {})",
-                transform.translation.x(),
-                transform.translation.y()
-            ));
-            (*text)
-                .value
-                .push_str(&format!("\ngravity: {}", time.delta_seconds * gravity.0));
-            if let Some(measurement) = diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FPS)
-            {
-                (*text)
-                    .value
-                    .push_str(&format!("\nFPS: {}", measurement.value));
-            }
-            if let Some(measurement) =
+    for children in debug_panels_query.iter() {
+        if let Ok(mut text) = text_query.get_mut(children[0]) {
+            for (player, velocity, transform) in info_query.iter() {
+                let text = &mut *text;
+                text.value.clear();
+                text.value.push_str(&format!("{:#?}", player));
+                text.value.push_str(&format!("\n{:#?}", *game));
+                text.value.push_str(&format!("\nvelocity: {:?})", velocity.0));
+                text.value.push_str(&format!("\nposition: {:?}", transform.translation.truncate()));
+
+                if let Some(measurement) = diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FPS)
+                {
+                    text
+                        .value
+                        .push_str(&format!("\nFPS: {:.2}", measurement.value));
+                }
+                if let Some(measurement) =
                 diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_TIME)
-            {
-                (*text)
-                    .value
-                    .push_str(&format!("\nframe time: {}", measurement.value));
-            }
-            if let Some(measurement) =
+                {
+                    text
+                        .value
+                        .push_str(&format!("\nframe time: {:.3}", measurement.value));
+                }
+                if let Some(measurement) =
                 diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_COUNT)
-            {
-                (*text)
-                    .value
-                    .push_str(&format!("\nframes count: {}", measurement.value));
+                {
+                    text
+                        .value
+                        .push_str(&format!("\nframes count: {}", measurement.value));
+                }
             }
         }
     }
