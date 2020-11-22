@@ -126,11 +126,23 @@ fn setup_health_bar(
 
 fn update_health_bar(
     player_query: Query<&Player>,
-    mut health_bar_query: Query<(&HealthIndicator, &mut Draw)>
+    mut health_bar_query: Query<(&HealthIndicator, &mut Draw, &mut Transform)>
 ) {
     for player in player_query.iter() {
-        for (health_indicator, mut draw) in health_bar_query.iter_mut() {
-            draw.is_visible = health_indicator.health <= player.health;
+        for (health_indicator, mut draw, mut transform) in health_bar_query.iter_mut() {
+            if health_indicator.health > player.health {
+                transform.scale.x -= 0.05;
+                transform.scale.y -= 0.05;
+                if transform.scale.x < 0.01 {
+                    transform.scale.y = 0.0;
+                    transform.scale.x = 0.0;
+                    draw.is_visible = false;
+                }
+            } else {
+                transform.scale.x = 1.0;
+                transform.scale.y = 1.0;
+                draw.is_visible = true;
+            }
         }
     }
 }
