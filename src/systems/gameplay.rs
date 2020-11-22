@@ -15,6 +15,6 @@ pub fn cleanup_effects(
         for effect in &mut effects.effects {
             effect.consume_time(time.delta_seconds);
         }
-        effects.effects.retain(|effect| !effect.is_expired())
+        effects.effects.retain(|effect| effect.is_active())
     }
 }

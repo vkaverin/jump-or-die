@@ -3,9 +3,14 @@ pub struct Effects {
 }
 
 pub struct Effect {
-    is_temporary: bool,
-    remaining_time: f32,
-    pub effect_type: EffectType,
+    pub length: EffectLength,
+    pub effect: EffectType,
+}
+
+pub enum EffectLength {
+    Permanent,
+    Temporary(f32),
+    Countable(u8),
 }
 
 #[derive(PartialEq, Eq)]
@@ -22,21 +27,35 @@ impl Effects {
 }
 
 impl Effect {
-    pub fn new_temporary(effect_type: EffectType, time: f32) -> Self {
+
+    pub fn new_temporary(effect: EffectType, time: f32) -> Self {
         Self {
-            effect_type,
-            is_temporary: true,
-            remaining_time: time,
+            effect,
+            length: EffectLength::Temporary(time)
         }
     }
 
-    pub fn is_expired(&self) -> bool {
-        self.is_temporary && self.remaining_time == 0.0
+    pub fn is_active(&self) -> bool {
+        match self.length {
+            EffectLength::Permanent => {
+                true
+            }
+            EffectLength::Temporary(remaining_time) => {
+                remaining_time > 0.0
+            }
+            EffectLength::Countable(count_left) => {
+                count_left > 0
+            }
+        }
     }
 
     pub fn consume_time(&mut self, time_delta: f32) {
-        if self.is_temporary && self.remaining_time > 0.0 {
-            self.remaining_time = (self.remaining_time - time_delta).max(0.0);
+        match self.length {
+            EffectLength::Temporary(time_left) => {
+                let time_left = (time_left - time_delta).max(0.0);
+                self.length = EffectLength::Temporary(time_left);
+            }
+            _ => {}
         }
     }
 }

@@ -20,7 +20,7 @@ pub fn player_events(
                     let is_invulnerable = {
                         let mut is_invulnerable = false;
                         for effect in &effects.effects {
-                            if effect.effect_type == EffectType::Invulnerable && !effect.is_expired() {
+                            if effect.effect == EffectType::Invulnerable && effect.is_active() {
                                 is_invulnerable = true;
                             }
                         }
