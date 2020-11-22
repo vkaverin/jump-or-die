@@ -13,7 +13,7 @@ use crate::world::{AffectedByGravity, Gravity, Velocity};
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 use crate::systems::hud::HudPlugin;
-use crate::effects::Effects;
+use crate::effects::ActiveEffects;
 
 fn main() {
     let mut app = App::build();
@@ -63,7 +63,7 @@ fn setup(
             timer: Timer::from_seconds(3.0, true),
         })
         .spawn((Player::new(),))
-        .with(Effects::new())
+        .with(ActiveEffects::new())
         .with(Velocity(Vec2::new(0.0, 0.0)))
         .with(AffectedByGravity)
         .with_bundle(SpriteBundle {

@@ -1,4 +1,4 @@
-pub struct Effects {
+pub struct ActiveEffects {
     pub effects: Vec<Effect>,
 }
 
@@ -18,7 +18,7 @@ pub enum EffectType {
     Invulnerable,
 }
 
-impl Effects {
+impl ActiveEffects {
     pub fn new() -> Self {
         Self {
             effects: Vec::new(),

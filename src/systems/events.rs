@@ -4,14 +4,14 @@ use crate::player;
 use crate::player::{Player, PlayerEvent};
 use crate::world::Velocity;
 use bevy::prelude::*;
-use crate::effects::{Effects, Effect, EffectType};
+use crate::effects::{ActiveEffects, Effect, EffectType};
 
 pub fn player_events(
     commands: &mut Commands,
     mut game: ResMut<Game>,
     mut event_reader: Local<EventReader<PlayerEvent>>,
     events: Res<Events<PlayerEvent>>,
-    mut player_query: Query<(Entity, &mut Player, &mut Effects)>
+    mut player_query: Query<(Entity, &mut Player, &mut ActiveEffects)>
 ) {
     for e in event_reader.iter(&events) {
         match e {
