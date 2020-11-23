@@ -45,7 +45,7 @@ pub fn game_state_events(
     events: Res<Events<GameStateEvent>>,
     mut event_reader: Local<EventReader<GameStateEvent>>,
     mut game: ResMut<Game>,
-    mut player_query: Query<(&mut Player, &mut Velocity, &mut Transform)>,
+    mut player_query: Query<(&mut Player, &mut ActiveEffects, &mut Velocity, &mut Transform)>,
     enemies_query: Query<Entity, With<Enemy>>,
 ) {
     for e in event_reader.iter(&events) {
@@ -60,13 +60,14 @@ pub fn game_state_events(
 fn restart_game(
     commands: &mut Commands,
     game: &mut ResMut<Game>,
-    player_query: &mut Query<(&mut Player, &mut Velocity, &mut Transform)>,
+    player_query: &mut Query<(&mut Player, &mut ActiveEffects, &mut Velocity, &mut Transform)>,
     enemies_query: &Query<Entity, With<Enemy>>,
 ) {
     game.state = GameState::Running;
     game.score = 0.0;
-    for (mut player, mut velocity, mut transform) in player_query.iter_mut() {
+    for (mut player, mut active_effects, mut velocity, mut transform) in player_query.iter_mut() {
         player.health = player.max_health;
+        active_effects.effects.clear();
         velocity.0 = Vec2::zero();
         transform.translation.set_x(player::INITIAL_POSITION_X);
         transform.translation.set_y(player::INITIAL_POSITION_Y);
