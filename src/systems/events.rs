@@ -7,16 +7,15 @@ use bevy::prelude::*;
 use crate::effects::{ActiveEffects, Effect, EffectType};
 
 pub fn player_events(
-    commands: &mut Commands,
     mut game: ResMut<Game>,
     mut event_reader: Local<EventReader<PlayerEvent>>,
     events: Res<Events<PlayerEvent>>,
-    mut player_query: Query<(Entity, &mut Player, &mut ActiveEffects)>
+    mut player_query: Query<(&mut Player, &mut ActiveEffects)>
 ) {
     for e in event_reader.iter(&events) {
         match e {
             PlayerEvent::Hit => {
-                for (entity, mut player, mut effects) in player_query.iter_mut() {
+                for (mut player, mut effects) in player_query.iter_mut() {
                     let is_invulnerable = {
                         let mut is_invulnerable = false;
                         for effect in &effects.effects {
@@ -32,7 +31,7 @@ pub fn player_events(
                         if player.health == 0 {
                             game.state = GameState::GameOver;
                         } else {
-                            commands.insert_one(entity, effects.effects.push(Effect::new_temporary(EffectType::Invulnerable, 3.0)));
+                            effects.effects.push(Effect::new_invulnerability());
                         }
                     }
                 }

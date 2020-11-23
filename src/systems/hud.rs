@@ -1,8 +1,12 @@
 use crate::game::{Game, GameState};
 use bevy::prelude::*;
 use crate::player::Player;
+use crate::effects::{ActiveEffects, EffectType, EffectLength};
 
 const STARTUP_STAGE: &str = "hud_startup";
+
+const PLAYER_STATUS_BAR_TOP_MARGIN: f32 = 16.0;
+const PLAYER_STATUS_BAR_LEFT_MARGIN: f32 = 16.0;
 
 const HEALTH_BAR_WIDTH: f32 = 256.0;
 const HEALTH_BAR_HEIGHT: f32 = 64.0;
@@ -18,6 +22,8 @@ struct HealthIndicator {
     pub health: u8,
 }
 
+struct ActiveEffectsBar;
+
 pub struct HudPlugin;
 
 impl Plugin for HudPlugin {
@@ -28,6 +34,7 @@ impl Plugin for HudPlugin {
             .add_startup_system_to_stage(STARTUP_STAGE, setup_game_status.system())
             .add_system(update_scoreboard.system())
             .add_system(update_health_bar.system())
+            .add_system(update_active_effects.system())
             .add_system(update_game_state_screen.system());
     }
 }
@@ -121,7 +128,29 @@ fn setup_health_bar(
                     .with(HealthIndicator { health });
             }
         }
-    });
+    })
+    .spawn(TextBundle {
+        text: Text {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            style: TextStyle {
+                color: Color::rgb(0.5, 0.5, 0.5),
+                font_size: 32.0,
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        style: Style {
+            position_type: PositionType::Absolute,
+            position: Rect {
+                left: Val::Px(PLAYER_STATUS_BAR_LEFT_MARGIN),
+                top: Val::Px(PLAYER_STATUS_BAR_TOP_MARGIN + HEALTH_INDICATOR_HEIGHT + PLAYER_STATUS_BAR_TOP_MARGIN),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        ..Default::default()
+    })
+        .with(ActiveEffectsBar);
 }
 
 fn update_health_bar(
@@ -144,6 +173,38 @@ fn update_health_bar(
                 draw.is_visible = true;
             }
         }
+    }
+}
+
+fn update_active_effects(
+    active_effects: Query<&ActiveEffects, With<Player>>,
+    mut active_effects_bar: Query<&mut Text, With<ActiveEffectsBar>>
+) {
+    for mut text in active_effects_bar.iter_mut() {
+        let text = &mut *text;
+        text.value.clear();
+
+        let mut effects = String::new();
+        for active_effects in active_effects.iter() {
+            for effect in &active_effects.effects {
+                if !effect.is_active() {
+                    continue;
+                }
+                let effect_text = match effect.length {
+                    EffectLength::Permanent => {
+                        effect.name.clone()
+                    }
+                    EffectLength::Temporary(time_left, ) => {
+                        format!("{}: {:.2} ms left", effect.name, time_left)
+                    }
+                    EffectLength::Countable(count_left) => {
+                        format!("{}: {} left", effect.name, count_left)}
+                };
+                effects.push_str(&format!("{}\n", effect_text));
+            }
+        }
+
+        text.value = effects;
     }
 }
 

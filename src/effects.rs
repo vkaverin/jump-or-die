@@ -3,6 +3,7 @@ pub struct ActiveEffects {
 }
 
 pub struct Effect {
+    pub name: String,
     pub length: EffectLength,
     pub effect: EffectType,
 }
@@ -28,8 +29,17 @@ impl ActiveEffects {
 
 impl Effect {
 
-    pub fn new_temporary(effect: EffectType, time: f32) -> Self {
+    pub fn new_invulnerability() -> Self {
+        Self::new_temporary(
+            String::from("Invulnerability"),
+            EffectType::Invulnerable,
+            3.0
+        )
+    }
+
+    pub fn new_temporary(name: String, effect: EffectType, time: f32) -> Self {
         Self {
+            name,
             effect,
             length: EffectLength::Temporary(time)
         }
