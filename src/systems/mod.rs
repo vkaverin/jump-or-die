@@ -6,3 +6,4 @@ pub mod physics;
 pub mod hud;
 pub mod spawning;
 pub mod gameplay;
+pub mod visual_effects;

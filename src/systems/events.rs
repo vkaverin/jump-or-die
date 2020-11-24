@@ -4,18 +4,18 @@ use crate::player;
 use crate::player::{Player, PlayerEvent};
 use crate::world::Velocity;
 use bevy::prelude::*;
-use crate::effects::{ActiveEffects, Effect, EffectType};
+use crate::effects::{ActiveEffects, Effect, EffectType, VisualEffects, PeriodicInvisibility};
 
 pub fn player_events(
     mut game: ResMut<Game>,
     mut event_reader: Local<EventReader<PlayerEvent>>,
     events: Res<Events<PlayerEvent>>,
-    mut player_query: Query<(&mut Player, &mut ActiveEffects)>
+    mut player_query: Query<(&mut Player, &mut ActiveEffects, &mut VisualEffects)>
 ) {
     for e in event_reader.iter(&events) {
         match e {
             PlayerEvent::Hit => {
-                for (mut player, mut effects) in player_query.iter_mut() {
+                for (mut player, mut effects, mut visual_effects) in player_query.iter_mut() {
                     let is_invulnerable = {
                         let mut is_invulnerable = false;
                         for effect in &effects.effects {
@@ -32,6 +32,7 @@ pub fn player_events(
                             game.state = GameState::GameOver;
                         } else {
                             effects.effects.push(Effect::new_invulnerability());
+                            visual_effects.effects.push(Box::new(PeriodicInvisibility::new(0.2, 3.0)));
                         }
                     }
                 }

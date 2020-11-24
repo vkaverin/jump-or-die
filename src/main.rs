@@ -13,7 +13,7 @@ use crate::world::{AffectedByGravity, Gravity, Velocity};
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 use crate::systems::hud::HudPlugin;
-use crate::effects::ActiveEffects;
+use crate::effects::{ActiveEffects, VisualEffects};
 
 fn main() {
     let mut app = App::build();
@@ -35,6 +35,7 @@ fn main() {
         .add_system(systems::input::input.system())
         .add_system(systems::spawning::drop_enemies.system())
         .add_system(systems::gameplay::cleanup_effects.system())
+        .add_system(systems::visual_effects::run_visual_effects.system())
         .add_system(systems::spawning::spawn_new_enemy.system())
         .add_system(systems::physics::movement.system())
         .add_system(systems::physics::gravity.system())
@@ -64,6 +65,7 @@ fn setup(
         })
         .spawn((Player::new(),))
         .with(ActiveEffects::new())
+        .with(VisualEffects::new())
         .with(Velocity(Vec2::new(0.0, 0.0)))
         .with(AffectedByGravity)
         .with_bundle(SpriteBundle {

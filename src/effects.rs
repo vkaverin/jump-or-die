@@ -1,3 +1,12 @@
+use bevy::render::draw::Draw;
+use bevy::prelude::Transform;
+use bevy::sprite::ColorMaterial;
+use bevy::core::Timer;
+
+use core::ops::DerefMut;
+use std::time::Duration;
+use bevy::asset::{Handle, Assets};
+
 pub struct ActiveEffects {
     pub effects: Vec<Effect>,
 }
@@ -67,5 +76,56 @@ impl Effect {
             }
             _ => {}
         }
+    }
+}
+
+pub struct VisualEffects {
+    pub effects: Vec<Box<dyn VisualEffect + Send + Sync>>,
+}
+
+impl VisualEffects {
+    pub fn new() -> Self {
+        Self {
+            effects: Vec::new(),
+        }
+    }
+}
+
+pub trait VisualEffect {
+    fn tick(&mut self, time: f32);
+    fn apply(&self, draw: &mut Draw, transform: &mut Transform, materials: &mut Assets<ColorMaterial>, material: &Handle<ColorMaterial>);
+    fn is_expired(&self) -> bool;
+}
+
+pub struct PeriodicInvisibility {
+    local_timer: Timer,
+    global_timer: Timer,
+}
+
+impl PeriodicInvisibility {
+    pub fn new(period_time: f32, total_time: f32) -> Self {
+        Self {
+            local_timer: Timer::new(Duration::from_secs_f32(period_time), true),
+            global_timer: Timer::new(Duration::from_secs_f32(total_time), false),
+        }
+    }
+}
+
+impl VisualEffect for PeriodicInvisibility {
+    fn tick(&mut self, time: f32) {
+        self.local_timer.tick(time);
+        self.global_timer.tick(time);
+    }
+
+    fn apply(&self, draw: &mut Draw, _transform: &mut Transform, materials: &mut Assets<ColorMaterial>, material_handle: &Handle<ColorMaterial>) {
+        if self.global_timer.finished {
+            draw.is_visible = true;
+        } else if self.local_timer.just_finished {
+            draw.is_visible = !draw.is_visible;
+        }
+    }
+
+    fn is_expired(&self) -> bool {
+        self.global_timer.finished
     }
 }
