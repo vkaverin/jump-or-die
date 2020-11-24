@@ -1,16 +1,19 @@
 use crate::enemies;
-use crate::enemies::{Award, Enemy, GivesAward, SpawnTimer};
+use crate::enemies::{Award, Enemy, SpawnTimer};
 use crate::game::Game;
-use crate::world::{Collidable, Velocity};
+use crate::world::{Collider, Velocity};
 use bevy::prelude::*;
 use rand::{thread_rng, Rng};
+use crate::player::Player;
 
 pub fn spawn_new_enemy(
     commands: &mut Commands,
+    window: Res<WindowDescriptor>,
     time: Res<Time>,
     game: Res<Game>,
     mut spawn_timer: ResMut<SpawnTimer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    player_query: Query<&Sprite, With<Player>>
 ) {
     if !game.is_running() {
         return;
@@ -27,12 +30,11 @@ pub fn spawn_new_enemy(
 
     commands
         .spawn((Enemy,))
-        .with(GivesAward::new(Award::Score(enemies::SCORE)))
         .with(Velocity(Vec2::new(
             -enemies::VELOCITY_X,
             enemies::VELOCITY_Y,
         )))
-        .with(Collidable)
+        .with(Collider::Solid)
         .with_bundle(SpriteBundle {
             sprite: Sprite::new(Vec2::new(enemies::WIDTH, enemies::HEIGHT)),
             material: materials.add(
@@ -50,6 +52,29 @@ pub fn spawn_new_enemy(
             )),
             ..Default::default()
         });
+
+    for sprite in player_query.iter() {
+        commands
+            .spawn(SpriteBundle {
+                sprite: Sprite::new(Vec2::new(enemies::WIDTH, window.height as f32)),
+                material: materials.add(Color::NONE.into()),
+                transform: Transform::from_translation(Vec3::new(
+                    enemies::INITIAL_POSITION_X + sprite.size.x + 1.0,
+                    enemies::INITIAL_POSITION_Y,
+                    0.0,
+                )),
+                draw: Draw {
+                    is_visible: false,
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .with(Velocity(Vec2::new(
+                -enemies::VELOCITY_X,
+                enemies::VELOCITY_Y,
+            )))
+            .with(Collider::Award(Award::Score(enemies::SCORE)));
+    }
 }
 
 pub fn drop_enemies(

@@ -18,24 +18,7 @@ pub struct SpawnTimer {
     pub timer: Timer,
 }
 
+#[derive(Copy, Clone)]
 pub enum Award {
     Score(f32),
-}
-
-pub struct GivesAward {
-    pub already_taken: bool,
-    pub award: Award,
-}
-
-impl GivesAward {
-    pub fn new(award: Award) -> Self {
-        Self {
-            already_taken: false,
-            award,
-        }
-    }
-
-    pub fn take(&mut self) {
-        self.already_taken = true;
-    }
 }

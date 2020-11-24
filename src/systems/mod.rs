@@ -1,4 +1,3 @@
-pub mod awards;
 pub mod debug;
 pub mod events;
 pub mod input;

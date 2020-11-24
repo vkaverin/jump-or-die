@@ -1,5 +1,6 @@
 use crate::world;
 use crate::world::Velocity;
+use crate::enemies::Award;
 
 pub const WIDTH: f32 = 50.0;
 pub const HEIGHT: f32 = 50.0;
@@ -37,6 +38,7 @@ pub enum PlayerMovementState {
 
 pub enum PlayerEvent {
     Hit,
+    Award(Award),
 }
 
 pub fn update_movement_state(player: &mut Player, velocity: &Velocity) {

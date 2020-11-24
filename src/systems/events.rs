@@ -1,4 +1,4 @@
-use crate::enemies::Enemy;
+use crate::enemies::{Enemy, Award};
 use crate::game::{Game, GameState, GameStateEvent};
 use crate::player;
 use crate::player::{Player, PlayerEvent};
@@ -36,7 +36,15 @@ pub fn player_events(
                         }
                     }
                 }
-            }
+            },
+            PlayerEvent::Award(award) => {
+                match award {
+                    Award::Score(score) => {
+                        game.score += score;
+                        game.best_score = game.best_score.max(game.score);
+                    }
+                }
+            },
         }
     }
 }

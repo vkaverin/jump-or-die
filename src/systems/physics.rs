@@ -1,8 +1,9 @@
 use crate::game::{Game, GameState};
 use crate::player::{self, Player, PlayerEvent};
-use crate::world::{Collidable, Gravity, Velocity};
+use crate::world::{Collider, Gravity, Velocity};
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb;
+use bevy::sprite::collide_aabb::Collision;
 
 pub fn gravity(
     time: Res<Time>,
@@ -67,20 +68,29 @@ pub fn movement(
 }
 
 pub fn collisions(
+    commands: &mut Commands,
     mut events: ResMut<Events<PlayerEvent>>,
     player_query: Query<(&Player, &Sprite, &Transform)>,
-    collidables: Query<(&Collidable, &Sprite, &Transform)>,
+    colliders: Query<(Entity, &Collider, &Sprite, &Transform)>,
 ) {
     for (_player, player_sprite, player_transform) in player_query.iter() {
-        for (_collidable, collidable_sprite, collidable_transform) in collidables.iter() {
-            let maybe_collision = collide_aabb::collide(
+        for (collider_entity, collider, collider_sprite, collider_transform) in colliders.iter() {
+            let collision = collide_aabb::collide(
                 player_transform.translation,
                 player_sprite.size,
-                collidable_transform.translation,
-                collidable_sprite.size,
+                collider_transform.translation,
+                collider_sprite.size,
             );
-            if maybe_collision.is_some() {
-                events.send(PlayerEvent::Hit);
+            if collision.is_some() {
+                match collider {
+                    Collider::Solid => {
+                        events.send(PlayerEvent::Hit);
+                    },
+                    Collider::Award(award) => {
+                        events.send(PlayerEvent::Award(award.clone()));
+                        commands.despawn(collider_entity);
+                    }
+                }
             }
         }
     }

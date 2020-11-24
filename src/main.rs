@@ -40,7 +40,6 @@ fn main() {
         .add_system(systems::physics::movement.system())
         .add_system(systems::physics::gravity.system())
         .add_system(systems::physics::collisions.system())
-        .add_system(systems::awards::collect_enemy_awards.system())
         .add_system(systems::events::player_events.system())
         .add_system(systems::events::game_state_events.system());
 
