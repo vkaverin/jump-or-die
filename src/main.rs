@@ -4,6 +4,7 @@ mod player;
 mod systems;
 mod world;
 mod effects;
+mod awards;
 
 use crate::enemies::SpawnTimer;
 use crate::game::{Game, GameStateEvent};
@@ -14,6 +15,7 @@ use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 use crate::systems::hud::HudPlugin;
 use crate::effects::{ActiveEffects, VisualEffects};
+use crate::awards::AwardTimer;
 
 fn main() {
     let mut app = App::build();
@@ -34,6 +36,7 @@ fn main() {
         .add_plugin(HudPlugin)
         .add_system(systems::input::input.system())
         .add_system(systems::spawning::drop_enemies.system())
+        .add_system(systems::spawning::spawn_health.system())
         .add_system(systems::gameplay::cleanup_effects.system())
         .add_system(systems::visual_effects::run_visual_effects.system())
         .add_system(systems::spawning::spawn_new_enemy.system())
@@ -62,6 +65,7 @@ fn setup(
         .insert_resource(SpawnTimer {
             timer: Timer::from_seconds(3.0, true),
         })
+        .insert_resource(AwardTimer::new(5.0, 15.0))
         .spawn((Player::new(),))
         .with(ActiveEffects::new())
         .with(VisualEffects::new())

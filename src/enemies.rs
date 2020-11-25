@@ -17,8 +17,3 @@ pub struct Enemy;
 pub struct SpawnTimer {
     pub timer: Timer,
 }
-
-#[derive(Copy, Clone)]
-pub enum Award {
-    Score(f32),
-}

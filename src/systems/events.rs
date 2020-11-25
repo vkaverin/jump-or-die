@@ -1,8 +1,9 @@
-use crate::enemies::{Enemy, Award};
+use crate::enemies::{Enemy};
+use crate::awards::{Award};
 use crate::game::{Game, GameState, GameStateEvent};
 use crate::player;
 use crate::player::{Player, PlayerEvent};
-use crate::world::Velocity;
+use crate::world::{Velocity, Collider};
 use bevy::prelude::*;
 use crate::effects::{ActiveEffects, Effect, EffectType, VisualEffects, PeriodicInvisibility};
 
@@ -42,7 +43,12 @@ pub fn player_events(
                     Award::Score(score) => {
                         game.score += score;
                         game.best_score = game.best_score.max(game.score);
-                    }
+                    },
+                    Award::Health(health) => {
+                        for (mut player, mut _effects, mut _visual_effects) in player_query.iter_mut() {
+                            player.health = (player.health + health).min(player.max_health);
+                        }
+                    },
                 }
             },
         }
@@ -55,12 +61,12 @@ pub fn game_state_events(
     mut event_reader: Local<EventReader<GameStateEvent>>,
     mut game: ResMut<Game>,
     mut player_query: Query<(&mut Player, &mut ActiveEffects, &mut VisualEffects, &mut Velocity, &mut Draw, &mut Transform)>,
-    enemies_query: Query<Entity, With<Enemy>>,
+    colliders: Query<Entity, With<Collider>>,
 ) {
     for e in event_reader.iter(&events) {
         match e {
             GameStateEvent::Restart => {
-                restart_game(commands, &mut game, &mut player_query, &enemies_query);
+                restart_game(commands, &mut game, &mut player_query, &colliders);
             }
         }
     }
@@ -70,7 +76,7 @@ fn restart_game(
     commands: &mut Commands,
     game: &mut ResMut<Game>,
     player_query: &mut Query<(&mut Player, &mut ActiveEffects, &mut VisualEffects, &mut Velocity, &mut Draw, &mut Transform)>,
-    enemies_query: &Query<Entity, With<Enemy>>,
+    colliders: &Query<Entity, With<Collider>>,
 ) {
     game.state = GameState::Running;
     game.score = 0.0;
@@ -92,7 +98,7 @@ fn restart_game(
         transform.translation.set_y(player::INITIAL_POSITION_Y);
     }
 
-    for enemy_entity in enemies_query.iter() {
-        commands.despawn(enemy_entity);
+    for entity in colliders.iter() {
+        commands.despawn(entity);
     }
 }

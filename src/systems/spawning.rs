@@ -1,5 +1,6 @@
 use crate::enemies;
-use crate::enemies::{Award, Enemy, SpawnTimer};
+use crate::enemies::{Enemy, SpawnTimer};
+use crate::awards::{Award, AwardTimer};
 use crate::game::Game;
 use crate::world::{Collider, Velocity};
 use bevy::prelude::*;
@@ -92,4 +93,55 @@ pub fn drop_enemies(
             commands.despawn(enemy_entity);
         }
     }
+}
+
+pub fn spawn_health(
+    commands: &mut Commands,
+    window: Res<WindowDescriptor>,
+    time: Res<Time>,
+    game: Res<Game>,
+    asset_server: Res<AssetServer>,
+    mut timer: ResMut<AwardTimer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    players: Query<&Player>
+) {
+    if !game.is_running() {
+        return;
+    }
+
+    for player in players.iter() {
+        if player.health == player.max_health {
+            return;
+        }
+    }
+
+    timer.timer.tick(time.delta_seconds);
+    if !timer.timer.finished {
+        return;
+    }
+
+    timer.refill();
+
+    let mut rng = rand::thread_rng();
+    let mut health: u8 = 1;
+    if rng.gen_bool(0.25) {
+        health = 2;
+    }
+
+    let texture_handle = asset_server.load("sprites/health.png");
+    let width = 48.0 + (health - 1) as f32 * 16.0;
+    let height = 48.0 + (health - 1) as f32 * 16.0;
+
+    let initial_x = (window.width as f32 + width) / 2.0;
+    let initial_y = height / 2.0;
+
+    commands
+        .spawn(SpriteBundle {
+            sprite: Sprite::new(Vec2::new(width, height)),
+            material: materials.add(texture_handle.into()),
+            transform: Transform::from_translation(Vec3::new(initial_x, initial_y, 0.0, )),
+            ..Default::default()
+        })
+        .with(Velocity(Vec2::new(-300.0, 0.0)))
+        .with(Collider::Award(Award::Health(1)));
 }
