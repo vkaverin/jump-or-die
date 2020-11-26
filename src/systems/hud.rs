@@ -159,17 +159,24 @@ fn update_health_bar(
 ) {
     for player in player_query.iter() {
         for (health_indicator, mut draw, mut transform) in health_bar_query.iter_mut() {
+            let dx;
+            let dy;
             if health_indicator.health > player.health {
-                transform.scale.x -= 0.05;
-                transform.scale.y -= 0.05;
-                if transform.scale.x < 0.01 {
-                    transform.scale.y = 0.0;
-                    transform.scale.x = 0.0;
+                dx = -0.05;
+                dy = -0.05;
+            } else {
+                dx = 0.05;
+                dy = 0.05;
+            }
+
+            transform.scale.x = (transform.scale.x + dx).min(1.0).max(0.0);
+            transform.scale.y = (transform.scale.y + dy).min(1.0).max(0.0);
+
+            if transform.scale.x == 0.0 && transform.scale.y == 0.0 {
+                if draw.is_visible {
                     draw.is_visible = false;
                 }
-            } else {
-                transform.scale.x = 1.0;
-                transform.scale.y = 1.0;
+            } else if !draw.is_visible {
                 draw.is_visible = true;
             }
         }
