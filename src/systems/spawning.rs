@@ -143,5 +143,5 @@ pub fn spawn_health(
             ..Default::default()
         })
         .with(Velocity(Vec2::new(-300.0, 0.0)))
-        .with(Collider::Award(Award::Health(1)));
+        .with(Collider::Award(Award::Health(health)));
 }
