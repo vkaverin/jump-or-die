@@ -1,13 +1,21 @@
-use bevy::prelude::*;
 use crate::effects::VisualEffects;
-use crate::player::Player;
 use crate::game::{Game, GameState};
+use crate::player::Player;
+use bevy::prelude::*;
 
 pub fn run_visual_effects(
     time: Res<Time>,
     game: Res<Game>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut query: Query<(&mut VisualEffects, &mut Draw, &mut Transform, &Handle<ColorMaterial>), With<Player>>
+    mut query: Query<
+        (
+            &mut VisualEffects,
+            &mut Draw,
+            &mut Transform,
+            &Handle<ColorMaterial>,
+        ),
+        With<Player>,
+    >,
 ) {
     if game.state != GameState::Running {
         return;

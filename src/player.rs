@@ -1,6 +1,6 @@
+use crate::awards::Award;
 use crate::world;
 use crate::world::Velocity;
-use crate::awards::Award;
 
 pub const WIDTH: f32 = 50.0;
 pub const HEIGHT: f32 = 50.0;

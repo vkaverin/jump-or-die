@@ -1,35 +1,33 @@
+mod awards;
+mod effects;
 mod enemies;
 mod game;
 mod player;
 mod systems;
 mod world;
-mod effects;
-mod awards;
 
+use crate::awards::AwardTimer;
+use crate::effects::{ActiveEffects, VisualEffects};
 use crate::enemies::SpawnTimer;
 use crate::game::{Game, GameStateEvent};
 use crate::player::{Player, PlayerEvent};
 use crate::systems::debug::DebugPlugin;
+use crate::systems::hud::HudPlugin;
 use crate::world::{AffectedByGravity, Gravity, Velocity};
 use bevy::prelude::*;
-use crate::systems::hud::HudPlugin;
-use crate::effects::{ActiveEffects, VisualEffects};
-use crate::awards::AwardTimer;
 
 fn main() {
     let mut app = App::build();
 
-    app
-        .add_resource(WindowDescriptor {
-            width: world::SCREEN_WIDTH,
-            height: world::SCREEN_HEIGHT,
-            resizable: false,
-            ..Default::default()
-        })
-        .add_plugins(DefaultPlugins);
+    app.add_resource(WindowDescriptor {
+        width: world::SCREEN_WIDTH,
+        height: world::SCREEN_HEIGHT,
+        resizable: false,
+        ..Default::default()
+    })
+    .add_plugins(DefaultPlugins);
 
-    app
-        .add_event::<GameStateEvent>()
+    app.add_event::<GameStateEvent>()
         .add_event::<PlayerEvent>()
         .add_startup_system(setup.system())
         .add_plugin(HudPlugin)
@@ -46,15 +44,12 @@ fn main() {
         .add_system(systems::events::game_state_events.system());
 
     #[cfg(feature = "debug_panel")]
-        app.add_plugin(DebugPlugin);
+    app.add_plugin(DebugPlugin);
 
     app.run();
 }
 
-fn setup(
-    commands: &mut Commands,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
+fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     commands
         .spawn(Camera2dBundle::default())
         .spawn(CameraUiBundle::default())

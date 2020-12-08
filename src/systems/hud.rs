@@ -1,7 +1,7 @@
-use crate::game::{Game, GameState};
-use bevy::prelude::*;
-use crate::player::Player;
 use crate::effects::{ActiveEffects, EffectLength};
+use crate::game::{Game, GameState};
+use crate::player::Player;
+use bevy::prelude::*;
 
 const STARTUP_STAGE: &str = "hud_startup";
 
@@ -39,32 +39,28 @@ impl Plugin for HudPlugin {
     }
 }
 
-fn setup_scoreboard(
-    commands: &mut Commands,
-    asset_server: ResMut<AssetServer>,
-) {
-    commands.spawn((Scoreboard,))
-        .with_bundle(TextBundle {
-            text: Text {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                style: TextStyle {
-                    color: Color::rgb(0.5, 0.5, 0.5),
-                    font_size: 40.0,
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-            style: Style {
-                position_type: PositionType::Absolute,
-                position: Rect {
-                    top: Val::Px(5.0),
-                    right: Val::Px(5.0),
-                    ..Default::default()
-                },
+fn setup_scoreboard(commands: &mut Commands, asset_server: ResMut<AssetServer>) {
+    commands.spawn((Scoreboard,)).with_bundle(TextBundle {
+        text: Text {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            style: TextStyle {
+                color: Color::rgb(0.5, 0.5, 0.5),
+                font_size: 40.0,
                 ..Default::default()
             },
             ..Default::default()
-        });
+        },
+        style: Style {
+            position_type: PositionType::Absolute,
+            position: Rect {
+                top: Val::Px(5.0),
+                right: Val::Px(5.0),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        ..Default::default()
+    });
 }
 
 fn update_scoreboard(game: Res<Game>, mut query: Query<&mut Text, With<Scoreboard>>) {
@@ -77,85 +73,93 @@ fn setup_health_bar(
     commands: &mut Commands,
     asset_server: ResMut<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    player_query: Query<&Player>
+    player_query: Query<&Player>,
 ) {
     let health_handle = asset_server.load("sprites/health.png");
     let material_handle = materials.add(health_handle.into());
 
-    commands.spawn(NodeBundle {
-        material: materials.add(Color::NONE.into()),
-        style: Style {
-            position_type: PositionType::Absolute,
-            position: Rect {
-                left: Val::Px(16.0),
-                top: Val::Px(16.0),
+    commands
+        .spawn(NodeBundle {
+            material: materials.add(Color::NONE.into()),
+            style: Style {
+                position_type: PositionType::Absolute,
+                position: Rect {
+                    left: Val::Px(16.0),
+                    top: Val::Px(16.0),
+                    ..Default::default()
+                },
+                size: Size {
+                    height: Val::Px(HEALTH_BAR_HEIGHT),
+                    ..Default::default()
+                },
+                justify_content: JustifyContent::FlexEnd,
+                align_items: AlignItems::Center,
                 ..Default::default()
             },
-            size: Size {
-                height: Val::Px(HEALTH_BAR_HEIGHT),
+            draw: Draw {
+                is_transparent: true,
                 ..Default::default()
             },
-            justify_content: JustifyContent::FlexEnd,
-            align_items: AlignItems::Center,
             ..Default::default()
-        },
-        draw: Draw {
-            is_transparent: true,
-            ..Default::default()
-        },
-        ..Default::default()
-    })
-    .with_children(move |parent| {
-        for player in player_query.iter() {
-            for health in 1..=player.max_health {
-                parent
-                    .spawn(ImageBundle {
-                        style: Style {
-                            max_size: Size::new(Val::Px(HEALTH_INDICATOR_WIDTH), Val::Px(HEALTH_INDICATOR_HEIGHT)),
-                            margin: Rect {
-                                right: Val::Px(16.0),
+        })
+        .with_children(move |parent| {
+            for player in player_query.iter() {
+                for health in 1..=player.max_health {
+                    parent
+                        .spawn(ImageBundle {
+                            style: Style {
+                                max_size: Size::new(
+                                    Val::Px(HEALTH_INDICATOR_WIDTH),
+                                    Val::Px(HEALTH_INDICATOR_HEIGHT),
+                                ),
+                                margin: Rect {
+                                    right: Val::Px(16.0),
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            },
+                            material: material_handle.clone(),
+                            draw: Draw {
+                                is_transparent: true,
                                 ..Default::default()
                             },
                             ..Default::default()
-                        },
-                        material: material_handle.clone(),
-                        draw: Draw {
-                            is_transparent: true,
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    })
-                    .with(HealthIndicator { health });
+                        })
+                        .with(HealthIndicator { health });
+                }
             }
-        }
-    })
-    .spawn(TextBundle {
-        text: Text {
-            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-            style: TextStyle {
-                color: Color::rgb(0.5, 0.5, 0.5),
-                font_size: 32.0,
+        })
+        .spawn(TextBundle {
+            text: Text {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                style: TextStyle {
+                    color: Color::rgb(0.5, 0.5, 0.5),
+                    font_size: 32.0,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            style: Style {
+                position_type: PositionType::Absolute,
+                position: Rect {
+                    left: Val::Px(PLAYER_STATUS_BAR_LEFT_MARGIN),
+                    top: Val::Px(
+                        PLAYER_STATUS_BAR_TOP_MARGIN
+                            + HEALTH_INDICATOR_HEIGHT
+                            + PLAYER_STATUS_BAR_TOP_MARGIN,
+                    ),
+                    ..Default::default()
+                },
                 ..Default::default()
             },
             ..Default::default()
-        },
-        style: Style {
-            position_type: PositionType::Absolute,
-            position: Rect {
-                left: Val::Px(PLAYER_STATUS_BAR_LEFT_MARGIN),
-                top: Val::Px(PLAYER_STATUS_BAR_TOP_MARGIN + HEALTH_INDICATOR_HEIGHT + PLAYER_STATUS_BAR_TOP_MARGIN),
-                ..Default::default()
-            },
-            ..Default::default()
-        },
-        ..Default::default()
-    })
+        })
         .with(ActiveEffectsBar);
 }
 
 fn update_health_bar(
     player_query: Query<&Player>,
-    mut health_bar_query: Query<(&HealthIndicator, &mut Draw, &mut Transform)>
+    mut health_bar_query: Query<(&HealthIndicator, &mut Draw, &mut Transform)>,
 ) {
     for player in player_query.iter() {
         for (health_indicator, mut draw, mut transform) in health_bar_query.iter_mut() {
@@ -185,7 +189,7 @@ fn update_health_bar(
 
 fn update_active_effects(
     active_effects: Query<&ActiveEffects, With<Player>>,
-    mut active_effects_bar: Query<&mut Text, With<ActiveEffectsBar>>
+    mut active_effects_bar: Query<&mut Text, With<ActiveEffectsBar>>,
 ) {
     for mut text in active_effects_bar.iter_mut() {
         let text = &mut *text;
@@ -198,14 +202,13 @@ fn update_active_effects(
                     continue;
                 }
                 let effect_text = match effect.length {
-                    EffectLength::Permanent => {
-                        effect.name.clone()
-                    }
-                    EffectLength::Temporary(time_left, ) => {
+                    EffectLength::Permanent => effect.name.clone(),
+                    EffectLength::Temporary(time_left) => {
                         format!("{}: {:.2} ms left", effect.name, time_left)
                     }
                     EffectLength::Countable(count_left) => {
-                        format!("{}: {} left", effect.name, count_left)}
+                        format!("{}: {} left", effect.name, count_left)
+                    }
                 };
                 effects.push_str(&format!("{}\n", effect_text));
             }
@@ -242,25 +245,21 @@ fn update_game_state_screen(
     }
 }
 
-fn setup_game_status(
-    commands: &mut Commands,
-    asset_server: ResMut<AssetServer>,
-) {
-    commands.spawn((GameStateLabel,))
-        .with_bundle(TextBundle {
-            text: Text {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                style: TextStyle {
-                    color: Color::rgb(0.5, 0.5, 0.5),
-                    font_size: 120.0,
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-            style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+fn setup_game_status(commands: &mut Commands, asset_server: ResMut<AssetServer>) {
+    commands.spawn((GameStateLabel,)).with_bundle(TextBundle {
+        text: Text {
+            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            style: TextStyle {
+                color: Color::rgb(0.5, 0.5, 0.5),
+                font_size: 120.0,
                 ..Default::default()
             },
             ..Default::default()
-        });
+        },
+        style: Style {
+            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+            ..Default::default()
+        },
+        ..Default::default()
+    });
 }

@@ -1,11 +1,10 @@
-use bevy::render::draw::Draw;
-use bevy::prelude::Transform;
-use bevy::sprite::ColorMaterial;
 use bevy::core::Timer;
+use bevy::prelude::Transform;
+use bevy::render::draw::Draw;
+use bevy::sprite::ColorMaterial;
 
-use core::ops::DerefMut;
+use bevy::asset::{Assets, Handle};
 use std::time::Duration;
-use bevy::asset::{Handle, Assets};
 
 pub struct ActiveEffects {
     pub effects: Vec<Effect>,
@@ -37,12 +36,11 @@ impl ActiveEffects {
 }
 
 impl Effect {
-
     pub fn new_invulnerability() -> Self {
         Self::new_temporary(
             String::from("Invulnerability"),
             EffectType::Invulnerable,
-            3.0
+            3.0,
         )
     }
 
@@ -50,21 +48,15 @@ impl Effect {
         Self {
             name,
             effect,
-            length: EffectLength::Temporary(time)
+            length: EffectLength::Temporary(time),
         }
     }
 
     pub fn is_active(&self) -> bool {
         match self.length {
-            EffectLength::Permanent => {
-                true
-            }
-            EffectLength::Temporary(remaining_time) => {
-                remaining_time > 0.0
-            }
-            EffectLength::Countable(count_left) => {
-                count_left > 0
-            }
+            EffectLength::Permanent => true,
+            EffectLength::Temporary(remaining_time) => remaining_time > 0.0,
+            EffectLength::Countable(count_left) => count_left > 0,
         }
     }
 
@@ -93,7 +85,13 @@ impl VisualEffects {
 
 pub trait VisualEffect {
     fn tick(&mut self, time: f32);
-    fn apply(&self, draw: &mut Draw, transform: &mut Transform, materials: &mut Assets<ColorMaterial>, material: &Handle<ColorMaterial>);
+    fn apply(
+        &self,
+        draw: &mut Draw,
+        transform: &mut Transform,
+        materials: &mut Assets<ColorMaterial>,
+        material: &Handle<ColorMaterial>,
+    );
     fn is_expired(&self) -> bool;
 }
 
@@ -117,7 +115,13 @@ impl VisualEffect for PeriodicInvisibility {
         self.global_timer.tick(time);
     }
 
-    fn apply(&self, draw: &mut Draw, _transform: &mut Transform, _materials: &mut Assets<ColorMaterial>, _material_handle: &Handle<ColorMaterial>) {
+    fn apply(
+        &self,
+        draw: &mut Draw,
+        _transform: &mut Transform,
+        _materials: &mut Assets<ColorMaterial>,
+        _material_handle: &Handle<ColorMaterial>,
+    ) {
         if self.global_timer.finished() {
             draw.is_visible = true;
         } else if self.local_timer.just_finished() {

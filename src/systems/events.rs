@@ -1,17 +1,16 @@
-use crate::enemies::{Enemy};
-use crate::awards::{Award};
+use crate::awards::Award;
+use crate::effects::{ActiveEffects, Effect, EffectType, PeriodicInvisibility, VisualEffects};
 use crate::game::{Game, GameState, GameStateEvent};
 use crate::player;
 use crate::player::{Player, PlayerEvent};
-use crate::world::{Velocity, Collider};
+use crate::world::{Collider, Velocity};
 use bevy::prelude::*;
-use crate::effects::{ActiveEffects, Effect, EffectType, VisualEffects, PeriodicInvisibility};
 
 pub fn player_events(
     mut game: ResMut<Game>,
     mut event_reader: Local<EventReader<PlayerEvent>>,
     events: Res<Events<PlayerEvent>>,
-    mut player_query: Query<(&mut Player, &mut ActiveEffects, &mut VisualEffects)>
+    mut player_query: Query<(&mut Player, &mut ActiveEffects, &mut VisualEffects)>,
 ) {
     for e in event_reader.iter(&events) {
         match e {
@@ -33,22 +32,22 @@ pub fn player_events(
                             game.state = GameState::GameOver;
                         } else {
                             effects.effects.push(Effect::new_invulnerability());
-                            visual_effects.effects.push(Box::new(PeriodicInvisibility::new(0.2, 3.0)));
+                            visual_effects
+                                .effects
+                                .push(Box::new(PeriodicInvisibility::new(0.2, 3.0)));
                         }
                     }
                 }
-            },
-            PlayerEvent::Award(award) => {
-                match award {
-                    Award::Score(score) => {
-                        game.score += score;
-                        game.best_score = game.best_score.max(game.score);
-                    },
-                    Award::Health(health) => {
-                        for (mut player, mut _effects, mut _visual_effects) in player_query.iter_mut() {
-                            player.health = (player.health + health).min(player.max_health);
-                        }
-                    },
+            }
+            PlayerEvent::Award(award) => match award {
+                Award::Score(score) => {
+                    game.score += score;
+                    game.best_score = game.best_score.max(game.score);
+                }
+                Award::Health(health) => {
+                    for (mut player, mut _effects, mut _visual_effects) in player_query.iter_mut() {
+                        player.health = (player.health + health).min(player.max_health);
+                    }
                 }
             },
         }
@@ -60,7 +59,14 @@ pub fn game_state_events(
     events: Res<Events<GameStateEvent>>,
     mut event_reader: Local<EventReader<GameStateEvent>>,
     mut game: ResMut<Game>,
-    mut player_query: Query<(&mut Player, &mut ActiveEffects, &mut VisualEffects, &mut Velocity, &mut Draw, &mut Transform)>,
+    mut player_query: Query<(
+        &mut Player,
+        &mut ActiveEffects,
+        &mut VisualEffects,
+        &mut Velocity,
+        &mut Draw,
+        &mut Transform,
+    )>,
     colliders: Query<Entity, With<Collider>>,
 ) {
     for e in event_reader.iter(&events) {
@@ -75,7 +81,14 @@ pub fn game_state_events(
 fn restart_game(
     commands: &mut Commands,
     game: &mut ResMut<Game>,
-    player_query: &mut Query<(&mut Player, &mut ActiveEffects, &mut VisualEffects, &mut Velocity, &mut Draw, &mut Transform)>,
+    player_query: &mut Query<(
+        &mut Player,
+        &mut ActiveEffects,
+        &mut VisualEffects,
+        &mut Velocity,
+        &mut Draw,
+        &mut Transform,
+    )>,
     colliders: &Query<Entity, With<Collider>>,
 ) {
     game.state = GameState::Running;
@@ -86,7 +99,7 @@ fn restart_game(
         mut visual_effects,
         mut velocity,
         mut draw,
-        mut transform
+        mut transform,
     ) in player_query.iter_mut()
     {
         player.health = player.max_health;

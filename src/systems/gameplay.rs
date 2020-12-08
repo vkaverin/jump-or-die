@@ -1,11 +1,11 @@
-use bevy::prelude::*;
-use crate::game::{Game, GameState};
 use crate::effects::{ActiveEffects, VisualEffects};
+use crate::game::{Game, GameState};
+use bevy::prelude::*;
 
 pub fn cleanup_effects(
     game: Res<Game>,
     time: Res<Time>,
-    mut query: Query<(&mut ActiveEffects, &mut VisualEffects)>
+    mut query: Query<(&mut ActiveEffects, &mut VisualEffects)>,
 ) {
     if game.state != GameState::Running {
         return;

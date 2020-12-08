@@ -1,11 +1,11 @@
+use crate::awards::{Award, AwardTimer};
 use crate::enemies;
 use crate::enemies::{Enemy, SpawnTimer};
-use crate::awards::{Award, AwardTimer};
 use crate::game::Game;
+use crate::player::Player;
 use crate::world::{Collider, Velocity};
 use bevy::prelude::*;
 use rand::{thread_rng, Rng};
-use crate::player::Player;
 
 pub fn spawn_new_enemy(
     commands: &mut Commands,
@@ -14,7 +14,7 @@ pub fn spawn_new_enemy(
     game: Res<Game>,
     mut spawn_timer: ResMut<SpawnTimer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    player_query: Query<&Sprite, With<Player>>
+    player_query: Query<&Sprite, With<Player>>,
 ) {
     if !game.is_running() {
         return;
@@ -26,7 +26,9 @@ pub fn spawn_new_enemy(
         return;
     }
 
-    spawn_timer.timer.set_duration(thread_rng().gen_range(2.0, 3.0));
+    spawn_timer
+        .timer
+        .set_duration(thread_rng().gen_range(2.0, 3.0));
     let mut rng = thread_rng();
 
     commands
@@ -103,7 +105,7 @@ pub fn spawn_health(
     asset_server: Res<AssetServer>,
     mut timer: ResMut<AwardTimer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    players: Query<&Player>
+    players: Query<&Player>,
 ) {
     if !game.is_running() {
         return;
@@ -139,7 +141,7 @@ pub fn spawn_health(
         .spawn(SpriteBundle {
             sprite: Sprite::new(Vec2::new(width, height)),
             material: materials.add(texture_handle.into()),
-            transform: Transform::from_translation(Vec3::new(initial_x, initial_y, 0.0, )),
+            transform: Transform::from_translation(Vec3::new(initial_x, initial_y, 0.0)),
             ..Default::default()
         })
         .with(Velocity(Vec2::new(-300.0, 0.0)))

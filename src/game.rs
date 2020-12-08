@@ -1,5 +1,3 @@
-use crate::awards::Award;
-
 pub enum GameStateEvent {
     Restart,
 }

@@ -1,8 +1,8 @@
 use crate::game::{Game, GameState, GameStateEvent};
 use crate::player::{self, Player, PlayerMovementState};
+use crate::systems::debug::DebugPanel;
 use crate::world::Velocity;
 use bevy::prelude::*;
-use crate::systems::debug::DebugPanel;
 
 pub fn input(
     input: Res<Input<KeyCode>>,

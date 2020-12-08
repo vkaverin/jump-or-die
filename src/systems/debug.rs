@@ -1,4 +1,4 @@
-use crate::world::{Gravity, Velocity};
+use crate::world::Velocity;
 
 use crate::game::Game;
 use crate::player::Player;
@@ -18,29 +18,28 @@ impl Plugin for DebugPlugin {
 }
 
 pub struct DebugPanel;
-pub struct DebugPanelText;
 
 fn debug_setup(
     commands: &mut Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    commands.spawn(NodeBundle {
-        style: Style {
-            size: Size::new(Val::Px(PANEL_WIDTH), Val::Percent(100.0)),
+    commands
+        .spawn(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Px(PANEL_WIDTH), Val::Percent(100.0)),
+                ..Default::default()
+            },
+            material: materials.add(Color::rgba(0.0, 0.0, 0.0, 0.9).into()),
+            draw: Draw {
+                is_transparent: true,
+                ..Default::default()
+            },
             ..Default::default()
-        },
-        material: materials.add(Color::rgba(0.0, 0.0, 0.0, 0.9).into()),
-        draw: Draw {
-            is_transparent: true,
-            ..Default::default()
-        },
-        ..Default::default()
-    })
+        })
         .with(DebugPanel)
         .with_children(|parent| {
-        parent
-            .spawn(TextBundle {
+            parent.spawn(TextBundle {
                 text: Text {
                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                     style: TextStyle {
@@ -65,7 +64,7 @@ fn debug_setup(
                 },
                 ..Default::default()
             });
-    });
+        });
 }
 
 fn update_debug_info_panel(
@@ -73,7 +72,7 @@ fn update_debug_info_panel(
     game: Res<Game>,
     info_query: Query<(&Player, &Velocity, &Transform)>,
     debug_panels_query: Query<&Children, With<DebugPanel>>,
-    mut text_query: Query<&mut Text>
+    mut text_query: Query<&mut Text>,
 ) {
     for children in debug_panels_query.iter() {
         if let Ok(mut text) = text_query.get_mut(children[0]) {
@@ -82,27 +81,29 @@ fn update_debug_info_panel(
                 text.value.clear();
                 text.value.push_str(&format!("{:#?}", player));
                 text.value.push_str(&format!("\n{:#?}", *game));
-                text.value.push_str(&format!("\nvelocity: {:?})", velocity.0));
-                text.value.push_str(&format!("\nposition: {:?}", transform.translation.truncate()));
+                text.value
+                    .push_str(&format!("\nvelocity: {:?})", velocity.0));
+                text.value.push_str(&format!(
+                    "\nposition: {:?}",
+                    transform.translation.truncate()
+                ));
 
-                if let Some(measurement) = diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FPS)
+                if let Some(measurement) =
+                    diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FPS)
                 {
-                    text
-                        .value
+                    text.value
                         .push_str(&format!("\nFPS: {:.2}", measurement.value));
                 }
                 if let Some(measurement) =
-                diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_TIME)
+                    diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_TIME)
                 {
-                    text
-                        .value
+                    text.value
                         .push_str(&format!("\nframe time: {:.3}", measurement.value));
                 }
                 if let Some(measurement) =
-                diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_COUNT)
+                    diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_COUNT)
                 {
-                    text
-                        .value
+                    text.value
                         .push_str(&format!("\nframes count: {}", measurement.value));
                 }
             }

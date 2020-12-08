@@ -3,7 +3,6 @@ use crate::player::{self, Player, PlayerEvent};
 use crate::world::{Collider, Gravity, Velocity};
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb;
-use bevy::sprite::collide_aabb::Collision;
 
 pub fn gravity(
     time: Res<Time>,
@@ -51,14 +50,10 @@ pub fn movement(
                 let player_sprite_half_x = sprite.size.x / 2.0;
 
                 if transform.translation.x - player_sprite_half_x <= window_left_border {
-                    transform
-                        .translation
-                        .x = window_left_border + player_sprite_half_x;
+                    transform.translation.x = window_left_border + player_sprite_half_x;
                     velocity.0.x = 0.0;
                 } else if transform.translation.x + player_sprite_half_x >= window_right_border {
-                    transform
-                        .translation
-                        .x = window_right_border - player_sprite_half_x;
+                    transform.translation.x = window_right_border - player_sprite_half_x;
                     velocity.0.x = 0.0;
                 }
                 player::update_movement_state(&mut player, &velocity);
@@ -85,9 +80,9 @@ pub fn collisions(
                 match collider {
                     Collider::Solid => {
                         events.send(PlayerEvent::Hit);
-                    },
+                    }
                     Collider::Award(award) => {
-                        events.send(PlayerEvent::Award(award.clone()));
+                        events.send(PlayerEvent::Award(*award));
                         commands.despawn(collider_entity);
                     }
                 }
