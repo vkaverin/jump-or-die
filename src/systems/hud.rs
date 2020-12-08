@@ -1,7 +1,7 @@
 use crate::game::{Game, GameState};
 use bevy::prelude::*;
 use crate::player::Player;
-use crate::effects::{ActiveEffects, EffectType, EffectLength};
+use crate::effects::{ActiveEffects, EffectLength};
 
 const STARTUP_STAGE: &str = "hud_startup";
 

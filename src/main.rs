@@ -11,7 +11,6 @@ use crate::game::{Game, GameStateEvent};
 use crate::player::{Player, PlayerEvent};
 use crate::systems::debug::DebugPlugin;
 use crate::world::{AffectedByGravity, Gravity, Velocity};
-use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 use crate::systems::hud::HudPlugin;
 use crate::effects::{ActiveEffects, VisualEffects};
@@ -58,7 +57,7 @@ fn setup(
 ) {
     commands
         .spawn(Camera2dBundle::default())
-        .spawn(UiCameraBundle::default())
+        .spawn(CameraUiBundle::default())
         .insert_resource(ClearColor(Color::WHITE))
         .insert_resource(Game::new())
         .insert_resource(Gravity::default())

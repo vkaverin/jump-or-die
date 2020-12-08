@@ -20,13 +20,13 @@ pub fn spawn_new_enemy(
         return;
     }
 
-    spawn_timer.timer.tick(time.delta_seconds);
+    spawn_timer.timer.tick(time.delta_seconds());
 
-    if !spawn_timer.timer.finished {
+    if !spawn_timer.timer.finished() {
         return;
     }
 
-    spawn_timer.timer.duration = thread_rng().gen_range(2.0, 3.0);
+    spawn_timer.timer.set_duration(thread_rng().gen_range(2.0, 3.0));
     let mut rng = thread_rng();
 
     commands
@@ -89,7 +89,7 @@ pub fn drop_enemies(
     }
 
     for (enemy_entity, sprite, transform) in query.iter() {
-        if transform.translation.x() + sprite.size.x() < -(game_window.width as f32) / 2.0 {
+        if transform.translation.x + sprite.size.x < -(game_window.width as f32) / 2.0 {
             commands.despawn(enemy_entity);
         }
     }
@@ -115,8 +115,8 @@ pub fn spawn_health(
         }
     }
 
-    timer.timer.tick(time.delta_seconds);
-    if !timer.timer.finished {
+    timer.timer.tick(time.delta_seconds());
+    if !timer.timer.finished() {
         return;
     }
 

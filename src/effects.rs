@@ -117,15 +117,15 @@ impl VisualEffect for PeriodicInvisibility {
         self.global_timer.tick(time);
     }
 
-    fn apply(&self, draw: &mut Draw, _transform: &mut Transform, materials: &mut Assets<ColorMaterial>, material_handle: &Handle<ColorMaterial>) {
-        if self.global_timer.finished {
+    fn apply(&self, draw: &mut Draw, _transform: &mut Transform, _materials: &mut Assets<ColorMaterial>, _material_handle: &Handle<ColorMaterial>) {
+        if self.global_timer.finished() {
             draw.is_visible = true;
-        } else if self.local_timer.just_finished {
+        } else if self.local_timer.just_finished() {
             draw.is_visible = !draw.is_visible;
         }
     }
 
     fn is_expired(&self) -> bool {
-        self.global_timer.finished
+        self.global_timer.finished()
     }
 }

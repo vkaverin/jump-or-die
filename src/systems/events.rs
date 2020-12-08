@@ -94,8 +94,8 @@ fn restart_game(
         visual_effects.effects.clear();
         velocity.0 = Vec2::zero();
         draw.is_visible = true;
-        transform.translation.set_x(player::INITIAL_POSITION_X);
-        transform.translation.set_y(player::INITIAL_POSITION_Y);
+        transform.translation.x = player::INITIAL_POSITION_X;
+        transform.translation.y = player::INITIAL_POSITION_Y;
     }
 
     for entity in colliders.iter() {

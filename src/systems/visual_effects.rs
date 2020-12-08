@@ -15,7 +15,7 @@ pub fn run_visual_effects(
 
     for (mut visual_effects, mut draw, mut transform, material) in query.iter_mut() {
         for effect in &mut visual_effects.effects {
-            effect.tick(time.delta_seconds);
+            effect.tick(time.delta_seconds());
             effect.apply(&mut draw, &mut transform, &mut materials, &material)
         }
     }

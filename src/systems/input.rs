@@ -72,15 +72,15 @@ fn input_on_running_game(
         PlayerMovementState::Staying | PlayerMovementState::Running => {
             if input.pressed(KeyCode::Up) || input.pressed(KeyCode::Space) {
                 player.movement_state = PlayerMovementState::Jumping;
-                velocity.0.set_y(player::VELOCITY_ON_JUMP);
+                velocity.0.y = player::VELOCITY_ON_JUMP;
             }
 
             if input.pressed(KeyCode::Left) {
-                velocity.0.set_x(-player::MOVEMENT_VELOCITY);
+                velocity.0.x = -player::MOVEMENT_VELOCITY;
             }
 
             if input.pressed(KeyCode::Right) {
-                velocity.0.set_x(player::MOVEMENT_VELOCITY);
+                velocity.0.x = player::MOVEMENT_VELOCITY;
             }
         }
         _ => {}
