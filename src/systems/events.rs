@@ -8,11 +8,10 @@ use bevy::prelude::*;
 
 pub fn player_events(
     mut game: ResMut<Game>,
-    mut event_reader: Local<EventReader<PlayerEvent>>,
-    events: Res<Events<PlayerEvent>>,
+    mut event_reader: EventReader<PlayerEvent>,
     mut player_query: Query<(&mut Player, &mut ActiveEffects, &mut VisualEffects)>,
 ) {
-    for e in event_reader.iter(&events) {
+    for e in event_reader.iter() {
         match e {
             PlayerEvent::Hit => {
                 for (mut player, mut effects, mut visual_effects) in player_query.iter_mut() {
@@ -56,20 +55,19 @@ pub fn player_events(
 
 pub fn game_state_events(
     commands: &mut Commands,
-    events: Res<Events<GameStateEvent>>,
-    mut event_reader: Local<EventReader<GameStateEvent>>,
+    mut event_reader: EventReader<GameStateEvent>,
     mut game: ResMut<Game>,
     mut player_query: Query<(
         &mut Player,
         &mut ActiveEffects,
         &mut VisualEffects,
         &mut Velocity,
-        &mut Draw,
+        &mut Visible,
         &mut Transform,
     )>,
     colliders: Query<Entity, With<Collider>>,
 ) {
-    for e in event_reader.iter(&events) {
+    for e in event_reader.iter() {
         match e {
             GameStateEvent::Restart => {
                 restart_game(commands, &mut game, &mut player_query, &colliders);
@@ -86,7 +84,7 @@ fn restart_game(
         &mut ActiveEffects,
         &mut VisualEffects,
         &mut Velocity,
-        &mut Draw,
+        &mut Visible,
         &mut Transform,
     )>,
     colliders: &Query<Entity, With<Collider>>,
@@ -98,7 +96,7 @@ fn restart_game(
         mut active_effects,
         mut visual_effects,
         mut velocity,
-        mut draw,
+        mut visibility,
         mut transform,
     ) in player_query.iter_mut()
     {
@@ -106,7 +104,7 @@ fn restart_game(
         active_effects.effects.clear();
         visual_effects.effects.clear();
         velocity.0 = Vec2::zero();
-        draw.is_visible = true;
+        visibility.is_visible = true;
         transform.translation.x = player::INITIAL_POSITION_X;
         transform.translation.y = player::INITIAL_POSITION_Y;
     }

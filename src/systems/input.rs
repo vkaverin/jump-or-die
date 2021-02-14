@@ -10,16 +10,16 @@ pub fn input(
     mut game_events: ResMut<Events<GameStateEvent>>,
     mut query: Query<(&mut Player, &mut Velocity)>,
     mut debug_query: Query<(Entity, &Children), With<DebugPanel>>,
-    mut draw_query: Query<&mut Draw>,
+    mut visibility_query: Query<&mut Visible>,
 ) {
     if input.just_pressed(KeyCode::D) {
         for (entity, children) in debug_query.iter_mut() {
-            if let Ok(mut draw) = draw_query.get_mut(entity) {
-                draw.is_visible = !draw.is_visible;
+            if let Ok(mut visibility) = visibility_query.get_mut(entity) {
+                visibility.is_visible = !visibility.is_visible;
             }
             for child in children.iter() {
-                if let Ok(mut draw) = draw_query.get_mut(*child) {
-                    draw.is_visible = !draw.is_visible;
+                if let Ok(mut visibility) = visibility_query.get_mut(*child) {
+                    visibility.is_visible = !visibility.is_visible;
                 }
             }
         }

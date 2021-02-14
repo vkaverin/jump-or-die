@@ -31,7 +31,7 @@ fn debug_setup(
                 ..Default::default()
             },
             material: materials.add(Color::rgba(0.0, 0.0, 0.0, 0.9).into()),
-            draw: Draw {
+            visible: Visible {
                 is_transparent: true,
                 ..Default::default()
             },
@@ -40,15 +40,15 @@ fn debug_setup(
         .with(DebugPanel)
         .with_children(|parent| {
             parent.spawn(TextBundle {
-                text: Text {
-                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                    style: TextStyle {
+                text: Text::with_section(
+                    "",
+                    TextStyle {
                         color: Color::WHITE,
                         font_size: 20.0,
                         ..Default::default()
                     },
-                    ..Default::default()
-                },
+                    Default::default()
+                ),
                 style: Style {
                     position_type: PositionType::Absolute,
                     position: Rect {
@@ -58,7 +58,7 @@ fn debug_setup(
                     },
                     ..Default::default()
                 },
-                draw: Draw {
+                visible: Visible {
                     is_transparent: true,
                     ..Default::default()
                 },
@@ -78,12 +78,12 @@ fn update_debug_info_panel(
         if let Ok(mut text) = text_query.get_mut(children[0]) {
             for (player, velocity, transform) in info_query.iter() {
                 let text = &mut *text;
-                text.value.clear();
-                text.value.push_str(&format!("{:#?}", player));
-                text.value.push_str(&format!("\n{:#?}", *game));
-                text.value
+                text.sections[0].value.clear();
+                text.sections[0].value.push_str(&format!("{:#?}", player));
+                text.sections[0].value.push_str(&format!("\n{:#?}", *game));
+                text.sections[0].value
                     .push_str(&format!("\nvelocity: {:?})", velocity.0));
-                text.value.push_str(&format!(
+                text.sections[0].value.push_str(&format!(
                     "\nposition: {:?}",
                     transform.translation.truncate()
                 ));
@@ -91,19 +91,19 @@ fn update_debug_info_panel(
                 if let Some(measurement) =
                     diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FPS)
                 {
-                    text.value
+                    text.sections[0].value
                         .push_str(&format!("\nFPS: {:.2}", measurement.value));
                 }
                 if let Some(measurement) =
                     diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_TIME)
                 {
-                    text.value
+                    text.sections[0].value
                         .push_str(&format!("\nframe time: {:.3}", measurement.value));
                 }
                 if let Some(measurement) =
                     diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_COUNT)
                 {
-                    text.value
+                    text.sections[0].value
                         .push_str(&format!("\nframes count: {}", measurement.value));
                 }
             }

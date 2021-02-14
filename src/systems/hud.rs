@@ -28,7 +28,7 @@ pub struct HudPlugin;
 
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_stage_after("startup", STARTUP_STAGE)
+        app.add_startup_stage_after(stage::STARTUP, STARTUP_STAGE, SystemStage::parallel())
             .add_startup_system_to_stage(STARTUP_STAGE, setup_scoreboard.system())
             .add_startup_system_to_stage(STARTUP_STAGE, setup_health_bar.system())
             .add_startup_system_to_stage(STARTUP_STAGE, setup_game_status.system())
@@ -41,15 +41,15 @@ impl Plugin for HudPlugin {
 
 fn setup_scoreboard(commands: &mut Commands, asset_server: ResMut<AssetServer>) {
     commands.spawn((Scoreboard,)).with_bundle(TextBundle {
-        text: Text {
-            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-            style: TextStyle {
+        text: Text::with_section(
+            "",
+            TextStyle {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                 color: Color::rgb(0.5, 0.5, 0.5),
-                font_size: 40.0,
-                ..Default::default()
+                font_size: 40.0
             },
-            ..Default::default()
-        },
+            Default::default()
+        ),
         style: Style {
             position_type: PositionType::Absolute,
             position: Rect {
@@ -65,7 +65,7 @@ fn setup_scoreboard(commands: &mut Commands, asset_server: ResMut<AssetServer>) 
 
 fn update_scoreboard(game: Res<Game>, mut query: Query<&mut Text, With<Scoreboard>>) {
     for mut text in query.iter_mut() {
-        (*text).value = format!("Score: {}. Best score: {}", game.score, game.best_score);
+        text.sections[0].value = format!("Score: {}. Best score: {}", game.score, game.best_score);
     }
 }
 
@@ -96,7 +96,7 @@ fn setup_health_bar(
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
-            draw: Draw {
+            visible: Visible {
                 is_transparent: true,
                 ..Default::default()
             },
@@ -119,7 +119,7 @@ fn setup_health_bar(
                                 ..Default::default()
                             },
                             material: material_handle.clone(),
-                            draw: Draw {
+                            visible: Visible {
                                 is_transparent: true,
                                 ..Default::default()
                             },
@@ -130,15 +130,16 @@ fn setup_health_bar(
             }
         })
         .spawn(TextBundle {
-            text: Text {
-                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                style: TextStyle {
+            text: Text::with_section(
+                "",
+                TextStyle {
+                    font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                     color: Color::rgb(0.5, 0.5, 0.5),
                     font_size: 32.0,
                     ..Default::default()
                 },
-                ..Default::default()
-            },
+                Default::default()
+            ),
             style: Style {
                 position_type: PositionType::Absolute,
                 position: Rect {
@@ -159,10 +160,10 @@ fn setup_health_bar(
 
 fn update_health_bar(
     player_query: Query<&Player>,
-    mut health_bar_query: Query<(&HealthIndicator, &mut Draw, &mut Transform)>,
+    mut health_bar_query: Query<(&HealthIndicator, &mut Visible, &mut Transform)>,
 ) {
     for player in player_query.iter() {
-        for (health_indicator, mut draw, mut transform) in health_bar_query.iter_mut() {
+        for (health_indicator, mut visible, mut transform) in health_bar_query.iter_mut() {
             let dx;
             let dy;
             if health_indicator.health > player.health {
@@ -177,11 +178,11 @@ fn update_health_bar(
             transform.scale.y = (transform.scale.y + dy).min(1.0).max(0.0);
 
             if transform.scale.x == 0.0 && transform.scale.y == 0.0 {
-                if draw.is_visible {
-                    draw.is_visible = false;
+                if visible.is_visible {
+                    visible.is_visible = false;
                 }
-            } else if !draw.is_visible {
-                draw.is_visible = true;
+            } else if !visible.is_visible {
+                visible.is_visible = true;
             }
         }
     }
@@ -193,7 +194,7 @@ fn update_active_effects(
 ) {
     for mut text in active_effects_bar.iter_mut() {
         let text = &mut *text;
-        text.value.clear();
+        text.sections[0].value.clear();
 
         let mut effects = String::new();
         for active_effects in active_effects.iter() {
@@ -214,31 +215,31 @@ fn update_active_effects(
             }
         }
 
-        text.value = effects;
+        text.sections[0].value = effects;
     }
 }
 
 fn update_game_state_screen(
     game: Res<Game>,
-    mut query: Query<(&mut Text, &mut Draw), With<GameStateLabel>>,
+    mut query: Query<(&mut Text, &mut Visible), With<GameStateLabel>>,
 ) {
-    for (mut text, mut draw) in query.iter_mut() {
+    for (mut text, mut visibility) in query.iter_mut() {
         match game.state {
             GameState::WaitingForStart => {
-                draw.is_visible = true;
-                (*text).value = "Press Space to start".to_string();
+                visibility.is_visible = true;
+                text.sections[0].value = "Press Space to start".to_string();
             }
             GameState::Running => {
-                draw.is_visible = false;
-                (*text).value = "".to_string();
+                visibility.is_visible = false;
+                text.sections[0].value = "".to_string();
             }
             GameState::Paused => {
-                draw.is_visible = true;
-                (*text).value = "Paused".to_string();
+                visibility.is_visible = true;
+                text.sections[0].value = "Paused".to_string();
             }
             GameState::GameOver => {
-                draw.is_visible = true;
-                (*text).value =
+                visibility.is_visible = true;
+                text.sections[0].value =
                     format!("Game over!\nYour score: {}\nPress R to restart", game.score);
             }
         }
@@ -247,15 +248,16 @@ fn update_game_state_screen(
 
 fn setup_game_status(commands: &mut Commands, asset_server: ResMut<AssetServer>) {
     commands.spawn((GameStateLabel,)).with_bundle(TextBundle {
-        text: Text {
-            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-            style: TextStyle {
+        text: Text::with_section(
+            "",
+            TextStyle {
+                font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                 color: Color::rgb(0.5, 0.5, 0.5),
                 font_size: 120.0,
                 ..Default::default()
             },
-            ..Default::default()
-        },
+            Default::default()
+        ),
         style: Style {
             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
             ..Default::default()

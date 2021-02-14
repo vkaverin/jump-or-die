@@ -39,7 +39,7 @@ pub fn spawn_new_enemy(
         )))
         .with(Collider::Solid)
         .with_bundle(SpriteBundle {
-            sprite: Sprite::new(Vec2::new(enemies::WIDTH, enemies::HEIGHT)),
+            sprite: Sprite::new(Vec2::new(enemies::ENEMY_WIDTH, enemies::ENEMY_HEIGHT)),
             material: materials.add(
                 Color::rgb(
                     rng.gen_range(0.0, 1.0),
@@ -59,14 +59,14 @@ pub fn spawn_new_enemy(
     for sprite in player_query.iter() {
         commands
             .spawn(SpriteBundle {
-                sprite: Sprite::new(Vec2::new(enemies::WIDTH, window.height as f32)),
+                sprite: Sprite::new(Vec2::new(enemies::ENEMY_WIDTH, window.height as f32)),
                 material: materials.add(Color::NONE.into()),
                 transform: Transform::from_translation(Vec3::new(
                     enemies::INITIAL_POSITION_X + sprite.size.x + 1.0,
                     enemies::INITIAL_POSITION_Y,
                     0.0,
                 )),
-                draw: Draw {
+                visible: Visible {
                     is_visible: false,
                     ..Default::default()
                 },

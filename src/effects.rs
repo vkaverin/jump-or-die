@@ -1,5 +1,5 @@
 use bevy::core::Timer;
-use bevy::prelude::Transform;
+use bevy::prelude::{Transform, Visible};
 use bevy::render::draw::Draw;
 use bevy::sprite::ColorMaterial;
 
@@ -87,7 +87,7 @@ pub trait VisualEffect {
     fn tick(&mut self, time: f32);
     fn apply(
         &self,
-        draw: &mut Draw,
+        visibility: &mut Visible,
         transform: &mut Transform,
         materials: &mut Assets<ColorMaterial>,
         material: &Handle<ColorMaterial>,
@@ -117,15 +117,15 @@ impl VisualEffect for PeriodicInvisibility {
 
     fn apply(
         &self,
-        draw: &mut Draw,
+        visibility: &mut Visible,
         _transform: &mut Transform,
         _materials: &mut Assets<ColorMaterial>,
         _material_handle: &Handle<ColorMaterial>,
     ) {
         if self.global_timer.finished() {
-            draw.is_visible = true;
+            visibility.is_visible = true;
         } else if self.local_timer.just_finished() {
-            draw.is_visible = !draw.is_visible;
+            visibility.is_visible = !visibility.is_visible;
         }
     }
 

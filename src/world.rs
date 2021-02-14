@@ -2,8 +2,8 @@ use crate::awards::Award;
 use crate::player;
 use bevy::math::Vec2;
 
-pub const SCREEN_WIDTH: u32 = 1280;
-pub const SCREEN_HEIGHT: u32 = 720;
+pub const SCREEN_WIDTH: f32 = 1280.0;
+pub const SCREEN_HEIGHT: f32 = 720.0;
 
 pub const GRAVITY: f32 = player::VELOCITY_ON_JUMP * 4.0;
 

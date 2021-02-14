@@ -10,7 +10,7 @@ pub fn run_visual_effects(
     mut query: Query<
         (
             &mut VisualEffects,
-            &mut Draw,
+            &mut Visible,
             &mut Transform,
             &Handle<ColorMaterial>,
         ),
@@ -21,10 +21,10 @@ pub fn run_visual_effects(
         return;
     }
 
-    for (mut visual_effects, mut draw, mut transform, material) in query.iter_mut() {
+    for (mut visual_effects, mut visibility, mut transform, material) in query.iter_mut() {
         for effect in &mut visual_effects.effects {
             effect.tick(time.delta_seconds());
-            effect.apply(&mut draw, &mut transform, &mut materials, &material)
+            effect.apply(&mut visibility, &mut transform, &mut materials, &material)
         }
     }
 }

@@ -19,7 +19,7 @@ use bevy::prelude::*;
 fn main() {
     let mut app = App::build();
 
-    app.add_resource(WindowDescriptor {
+    app.insert_resource(WindowDescriptor {
         width: world::SCREEN_WIDTH,
         height: world::SCREEN_HEIGHT,
         resizable: false,
@@ -51,8 +51,8 @@ fn main() {
 
 fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     commands
-        .spawn(Camera2dBundle::default())
-        .spawn(CameraUiBundle::default())
+        .spawn(OrthographicCameraBundle::new_2d())
+        .spawn(UiCameraBundle::default())
         .insert_resource(ClearColor(Color::WHITE))
         .insert_resource(Game::new())
         .insert_resource(Gravity::default())
@@ -77,13 +77,13 @@ fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) 
         })
         .spawn(SpriteBundle {
             sprite: Sprite::new(Vec2::new(
-                world::SCREEN_WIDTH as f32,
-                world::SCREEN_HEIGHT as f32,
+                world::SCREEN_WIDTH,
+                world::SCREEN_HEIGHT,
             )),
             material: materials.add(Color::BLACK.into()),
             transform: Transform::from_translation(Vec3::new(
                 0.0,
-                -((world::SCREEN_HEIGHT / 2) as f32),
+                -world::SCREEN_HEIGHT / 2.0,
                 0.0,
             )),
             ..Default::default()
