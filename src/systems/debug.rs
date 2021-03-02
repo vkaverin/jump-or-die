@@ -17,11 +17,10 @@ impl Plugin for DebugPlugin {
     }
 }
 
-pub struct DebugPanel;
+pub struct DebugInfo;
 
 fn debug_setup(
     commands: &mut Commands,
-    asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     commands
@@ -37,7 +36,7 @@ fn debug_setup(
             },
             ..Default::default()
         })
-        .with(DebugPanel)
+        .with(DebugInfo)
         .with_children(|parent| {
             parent.spawn(TextBundle {
                 text: Text::with_section(
@@ -71,7 +70,7 @@ fn update_debug_info_panel(
     diagnostics: Res<Diagnostics>,
     game: Res<Game>,
     info_query: Query<(&Player, &Velocity, &Transform)>,
-    debug_panels_query: Query<&Children, With<DebugPanel>>,
+    debug_panels_query: Query<&Children, With<DebugInfo>>,
     mut text_query: Query<&mut Text>,
 ) {
     for children in debug_panels_query.iter() {

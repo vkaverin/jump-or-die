@@ -1,6 +1,5 @@
 use bevy::core::Timer;
 use bevy::prelude::{Transform, Visible};
-use bevy::render::draw::Draw;
 use bevy::sprite::ColorMaterial;
 
 use bevy::asset::{Assets, Handle};

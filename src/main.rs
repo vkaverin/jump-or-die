@@ -18,16 +18,14 @@ use bevy::prelude::*;
 
 fn main() {
     let mut app = App::build();
-
     app.insert_resource(WindowDescriptor {
         width: world::SCREEN_WIDTH,
         height: world::SCREEN_HEIGHT,
         resizable: false,
         ..Default::default()
-    })
-    .add_plugins(DefaultPlugins);
-
-    app.add_event::<GameStateEvent>()
+        })
+        .add_plugins(DefaultPlugins)
+        .add_event::<GameStateEvent>()
         .add_event::<PlayerEvent>()
         .add_startup_system(setup.system())
         .add_plugin(HudPlugin)
@@ -43,7 +41,7 @@ fn main() {
         .add_system(systems::events::player_events.system())
         .add_system(systems::events::game_state_events.system());
 
-    #[cfg(feature = "debug_panel")]
+    #[cfg(feature = "debug")]
     app.add_plugin(DebugPlugin);
 
     app.run();

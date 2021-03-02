@@ -1,6 +1,6 @@
 use crate::game::{Game, GameState, GameStateEvent};
 use crate::player::{self, Player, PlayerMovementState};
-use crate::systems::debug::DebugPanel;
+use crate::systems::debug::DebugInfo;
 use crate::world::Velocity;
 use bevy::prelude::*;
 
@@ -9,7 +9,7 @@ pub fn input(
     mut game: ResMut<Game>,
     mut game_events: ResMut<Events<GameStateEvent>>,
     mut query: Query<(&mut Player, &mut Velocity)>,
-    mut debug_query: Query<(Entity, &Children), With<DebugPanel>>,
+    mut debug_query: Query<(Entity, &Children), With<DebugInfo>>,
     mut visibility_query: Query<&mut Visible>,
 ) {
     if input.just_pressed(KeyCode::D) {
