@@ -35,6 +35,7 @@ fn main() {
         .add_system(systems::gameplay::cleanup_effects.system())
         .add_system(systems::visual_effects::run_visual_effects.system())
         .add_system(systems::spawning::spawn_new_enemy.system())
+        .add_system(systems::gameplay::random_enemy_jump.system())
         .add_system(systems::physics::movement.system())
         .add_system(systems::physics::gravity.system())
         .add_system(systems::physics::collisions.system())
