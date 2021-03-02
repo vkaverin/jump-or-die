@@ -8,7 +8,7 @@ pub fn input(
     input: Res<Input<KeyCode>>,
     mut game: ResMut<Game>,
     mut game_events: ResMut<Events<GameStateEvent>>,
-    mut query: Query<(&mut Player, &mut Velocity)>,
+    mut query: Query<(&mut Player, &mut Velocity, &mut Sprite, &mut Transform)>,
     mut debug_query: Query<(Entity, &Children), With<DebugInfo>>,
     mut visibility_query: Query<&mut Visible>,
 ) {
@@ -25,7 +25,7 @@ pub fn input(
         }
     }
 
-    for (mut player, mut velocity) in query.iter_mut() {
+    for (mut player, mut velocity, mut sprite, mut transform) in query.iter_mut() {
         match game.state {
             GameState::WaitingForStart => {
                 if input.pressed(KeyCode::Space) {
@@ -39,6 +39,8 @@ pub fn input(
                     &mut game,
                     &mut player,
                     &mut velocity,
+                    &mut sprite,
+                    &mut transform
                 );
             }
             GameState::Paused => {
@@ -57,6 +59,8 @@ fn input_on_running_game(
     game: &mut ResMut<Game>,
     player: &mut Mut<Player>,
     velocity: &mut Mut<Velocity>,
+    sprite: &mut Mut<Sprite>,
+    transform: &mut Mut<Transform>,
 ) {
     if input.just_pressed(KeyCode::R) {
         game_events.send(GameStateEvent::Restart);
@@ -81,6 +85,23 @@ fn input_on_running_game(
 
             if input.pressed(KeyCode::Right) {
                 velocity.0.x = player::MOVEMENT_VELOCITY;
+            }
+
+            // FIXME: Completely frame-rate dependent.
+            if input.pressed(KeyCode::Down) {
+                sprite.size.y -= 5.0;
+                if sprite.size.y < player::HEIGHT / 2.0 {
+                    sprite.size.y = player::HEIGHT / 2.0;
+                } else {
+                    transform.translation.y -= 2.5;
+                }
+            } else {
+                sprite.size.y += 2.5;
+                if sprite.size.y > player::HEIGHT {
+                    sprite.size.y = player::HEIGHT;
+                } else {
+                    transform.translation.y += 1.25;
+                }
             }
         }
         _ => {}
