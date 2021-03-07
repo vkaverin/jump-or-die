@@ -1,31 +1,36 @@
 use crate::game::{Game, GameState, GameStateEvent};
 use crate::player::{self, Player, PlayerMovementState};
-use crate::systems::debug::DebugInfo;
-use crate::world::Velocity;
+use crate::systems::debug::DebugBlock;
+use crate::world::{Velocity, Deformation};
 use bevy::prelude::*;
 
 pub fn input(
     input: Res<Input<KeyCode>>,
     mut game: ResMut<Game>,
     mut game_events: ResMut<Events<GameStateEvent>>,
-    mut query: Query<(&mut Player, &mut Velocity, &mut Sprite, &mut Transform)>,
-    mut debug_query: Query<(Entity, &Children), With<DebugInfo>>,
+    mut query: Query<(&mut Player, &mut Velocity, &mut Deformation)>,
+    #[cfg(feature = "debug")]
+    mut debug_query: Query<(Entity, &Children), With<DebugBlock>>,
     mut visibility_query: Query<&mut Visible>,
 ) {
     if input.just_pressed(KeyCode::D) {
-        for (entity, children) in debug_query.iter_mut() {
-            if let Ok(mut visibility) = visibility_query.get_mut(entity) {
-                visibility.is_visible = !visibility.is_visible;
-            }
-            for child in children.iter() {
-                if let Ok(mut visibility) = visibility_query.get_mut(*child) {
-                    visibility.is_visible = !visibility.is_visible;
+        #[cfg(feature = "debug")]
+        {
+            for (entity, children) in debug_query.iter_mut() {
+                if let Ok(mut block_visibility) = visibility_query.get_mut(entity) {
+                    let visibility = block_visibility.is_visible;
+                    block_visibility.is_visible = !visibility;
+                    for child in children.iter() {
+                        if let Ok(mut text_visibility) = visibility_query.get_mut(*child) {
+                            text_visibility.is_visible = !visibility;
+                        }
+                    }
                 }
             }
         }
     }
 
-    for (mut player, mut velocity, mut sprite, mut transform) in query.iter_mut() {
+    for (mut player, mut velocity, mut deformation) in query.iter_mut() {
         match game.state {
             GameState::WaitingForStart => {
                 if input.pressed(KeyCode::Space) {
@@ -39,8 +44,7 @@ pub fn input(
                     &mut game,
                     &mut player,
                     &mut velocity,
-                    &mut sprite,
-                    &mut transform
+                    &mut deformation
                 );
             }
             GameState::Paused => {
@@ -59,8 +63,7 @@ fn input_on_running_game(
     game: &mut ResMut<Game>,
     player: &mut Mut<Player>,
     velocity: &mut Mut<Velocity>,
-    sprite: &mut Mut<Sprite>,
-    transform: &mut Mut<Transform>,
+    deformation: &mut Mut<Deformation>,
 ) {
     if input.just_pressed(KeyCode::R) {
         game_events.send(GameStateEvent::Restart);
@@ -87,21 +90,10 @@ fn input_on_running_game(
                 velocity.0.x = player::MOVEMENT_VELOCITY;
             }
 
-            // FIXME: Completely frame-rate dependent.
             if input.pressed(KeyCode::Down) {
-                sprite.size.y -= 5.0;
-                if sprite.size.y < player::HEIGHT / 2.0 {
-                    sprite.size.y = player::HEIGHT / 2.0;
-                } else {
-                    transform.translation.y -= 2.5;
-                }
+                deformation.top = -5.0;
             } else {
-                sprite.size.y += 2.5;
-                if sprite.size.y > player::HEIGHT {
-                    sprite.size.y = player::HEIGHT;
-                } else {
-                    transform.translation.y += 1.25;
-                }
+                deformation.top = 5.0;
             }
         }
         _ => {}

@@ -20,6 +20,14 @@ impl Default for Gravity {
 
 pub struct AffectedByGravity;
 
+#[derive(Default)]
+pub struct Deformation {
+    pub left: f32,
+    pub right: f32,
+    pub top: f32,
+    pub bottom: f32,
+}
+
 pub enum Collider {
     Solid,
     Award(Award),

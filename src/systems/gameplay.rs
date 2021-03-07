@@ -37,7 +37,7 @@ pub fn random_enemy_jump(
     // TODO: Make it smarter.
     for mut velocity in query.iter_mut() {
         if velocity.0.y == 0.0 && rng.gen_bool(0.01) {
-            velocity.0.y = crate::player::VELOCITY_ON_JUMP * 1.5;
+            velocity.0.y = crate::player::VELOCITY_ON_JUMP * 1.25;
             break;
         }
     }

@@ -1,6 +1,6 @@
 use crate::game::{Game, GameState};
 use crate::player::{self, Player, PlayerEvent};
-use crate::world::{Collider, Gravity, Velocity};
+use crate::world::{Collider, Gravity, Velocity, Deformation};
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb;
 
@@ -57,6 +57,31 @@ pub fn movement(
                     velocity.0.x = 0.0;
                 }
                 player::update_movement_state(&mut player, &velocity);
+            }
+        }
+    }
+}
+
+
+pub fn deformation(
+    time: Res<Time>,
+    game: Res<Game>,
+    mut query: Query<(&Deformation, &mut Transform)>,
+) {
+    if game.state != GameState::Running {
+        return;
+    }
+
+    for (deformation, mut transform) in query.iter_mut() {
+        if deformation.top != 0.0 {
+            let dy = deformation.top * time.delta_seconds();
+            transform.scale.y += dy;
+            if transform.scale.y > 1.0 {
+                transform.scale.y = 1.0
+            } else if transform.scale.y < 0.5 {
+                transform.scale.y = 0.5;
+            } else {
+                transform.translation.y -= 5.0;
             }
         }
     }
