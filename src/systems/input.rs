@@ -1,14 +1,14 @@
 use crate::game::{Game, GameState, GameStateEvent};
 use crate::player::{self, Player, PlayerMovementState};
 use crate::systems::debug::DebugBlock;
-use crate::world::{Velocity, Deformation};
+use crate::world::{Velocity};
 use bevy::prelude::*;
 
 pub fn input(
     input: Res<Input<KeyCode>>,
     mut game: ResMut<Game>,
     mut game_events: ResMut<Events<GameStateEvent>>,
-    mut query: Query<(&mut Player, &mut Velocity, &mut Deformation)>,
+    mut query: Query<(&mut Player, &mut Velocity)>,
     #[cfg(feature = "debug")]
     mut debug_query: Query<(Entity, &Children), With<DebugBlock>>,
     mut visibility_query: Query<&mut Visible>,
@@ -30,7 +30,7 @@ pub fn input(
         }
     }
 
-    for (mut player, mut velocity, mut deformation) in query.iter_mut() {
+    for (mut player, mut velocity) in query.iter_mut() {
         match game.state {
             GameState::WaitingForStart => {
                 if input.pressed(KeyCode::Space) {
@@ -43,8 +43,7 @@ pub fn input(
                     &mut game_events,
                     &mut game,
                     &mut player,
-                    &mut velocity,
-                    &mut deformation
+                    &mut velocity
                 );
             }
             GameState::Paused => {
@@ -63,7 +62,6 @@ fn input_on_running_game(
     game: &mut ResMut<Game>,
     player: &mut Mut<Player>,
     velocity: &mut Mut<Velocity>,
-    deformation: &mut Mut<Deformation>,
 ) {
     if input.just_pressed(KeyCode::R) {
         game_events.send(GameStateEvent::Restart);
@@ -88,12 +86,6 @@ fn input_on_running_game(
 
             if input.pressed(KeyCode::Right) {
                 velocity.0.x = player::MOVEMENT_VELOCITY;
-            }
-
-            if input.pressed(KeyCode::Down) {
-                deformation.top = -5.0;
-            } else {
-                deformation.top = 5.0;
             }
         }
         _ => {}

@@ -13,7 +13,7 @@ use crate::game::{Game, GameStateEvent};
 use crate::player::{Player, PlayerEvent};
 use crate::systems::debug::DebugPlugin;
 use crate::systems::hud::HudPlugin;
-use crate::world::{AffectedByGravity, Gravity, Velocity, Deformation};
+use crate::world::{AffectedByGravity, Gravity, Velocity};
 use bevy::prelude::*;
 
 fn main() {
@@ -36,7 +36,6 @@ fn main() {
         .add_system(systems::visual_effects::run_visual_effects.system())
         .add_system(systems::spawning::spawn_new_enemy.system())
         .add_system(systems::gameplay::random_enemy_jump.system())
-        .add_system(systems::physics::deformation.system())
         .add_system(systems::physics::movement.system())
         .add_system(systems::physics::gravity.system())
         .add_system(systems::physics::collisions.system())
@@ -64,7 +63,6 @@ fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) 
         .with(ActiveEffects::new())
         .with(VisualEffects::new())
         .with(Velocity(Vec2::new(0.0, 0.0)))
-        .with(Deformation::default())
         .with(AffectedByGravity)
         .with_bundle(SpriteBundle {
             sprite: Sprite::new(Vec2::new(player::WIDTH, player::HEIGHT)),
