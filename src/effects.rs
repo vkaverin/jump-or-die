@@ -1,9 +1,80 @@
 use bevy::core::Timer;
-use bevy::prelude::{Transform, Visible};
+use bevy::prelude::{Transform, Visible, Entity};
 use bevy::sprite::ColorMaterial;
 
 use bevy::asset::{Assets, Handle};
 use std::time::Duration;
+use crate::world::Velocity;
+
+type BoxedEntityEffect = Box<dyn EntityEffect + Send + Sync>;
+
+pub enum EffectDuration {
+    Permanent,
+    Temporary(Duration),
+}
+
+pub trait EntityEffect: Send + Sync {
+    fn apply(&mut self, entity: Entity, velocity: &mut Velocity, transform: &mut Transform);
+}
+
+pub struct EntityEffectDescriptor {
+    effect: BoxedEntityEffect,
+    duration: EffectDuration
+}
+
+impl EntityEffectDescriptor {
+    pub fn new_permanent<T: EntityEffect + 'static>(effect: T) -> Self {
+        Self {
+            effect: Box::new(effect),
+            duration: EffectDuration::Permanent,
+        }
+    }
+
+    pub fn new_temporary<T: EntityEffect + 'static>(effect: T, duration: Duration) -> Self {
+        Self {
+            effect: Box::new(effect),
+            duration: EffectDuration::Temporary(duration),
+        }
+    }
+
+    pub fn effect(&mut self) -> &mut BoxedEntityEffect {
+        &mut self.effect
+    }
+
+    pub fn tick(&mut self, delta: Duration) {
+        if let EffectDuration::Temporary(ref mut duration_left) = self.duration {
+            if delta >= *duration_left {
+                *duration_left = Duration::from_secs(0);
+            } else {
+                *duration_left -= delta;
+            }
+        }
+    }
+
+    pub fn is_expired(&self) -> bool {
+        match self.duration {
+            EffectDuration::Permanent => false,
+            EffectDuration::Temporary(duration) => duration == Duration::from_secs(0),
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct EntityEffects {
+    pub active: Vec<EntityEffectDescriptor>
+}
+
+pub struct SpeedBoost {
+    pub x_delta: f32,
+    pub y_delta: f32,
+}
+
+impl EntityEffect for SpeedBoost {
+    fn apply(&mut self, entity: Entity, velocity: &mut Velocity, transform: &mut Transform) {
+        velocity.0.x += self.x_delta;
+        velocity.0.y += self.y_delta;
+    }
+}
 
 pub struct ActiveEffects {
     pub effects: Vec<Effect>,

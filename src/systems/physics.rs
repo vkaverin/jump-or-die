@@ -55,6 +55,8 @@ pub fn movement(
                 } else if transform.translation.x + player_sprite_half_x >= window_right_border {
                     transform.translation.x = window_right_border - player_sprite_half_x;
                     velocity.0.x = 0.0;
+                } else if velocity.0.x != 0.0 {
+                    velocity.0.x = player::MOVEMENT_VELOCITY * velocity.0.x.signum();
                 }
                 player::update_movement_state(&mut player, &velocity);
             }

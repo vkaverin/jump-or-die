@@ -7,13 +7,13 @@ mod systems;
 mod world;
 
 use crate::awards::AwardTimer;
-use crate::effects::{ActiveEffects, VisualEffects};
+use crate::effects::{ActiveEffects, VisualEffects, EntityEffects};
 use crate::enemies::SpawnTimer;
 use crate::game::{Game, GameStateEvent};
 use crate::player::{Player, PlayerEvent};
-use crate::systems::debug::DebugPlugin;
-use crate::systems::hud::HudPlugin;
+use crate::systems::plugins::*;
 use crate::world::{AffectedByGravity, Gravity, Velocity};
+
 use bevy::prelude::*;
 
 fn main() {
@@ -28,10 +28,11 @@ fn main() {
         .add_event::<GameStateEvent>()
         .add_event::<PlayerEvent>()
         .add_startup_system(setup.system())
+        .add_plugin(InputPlugin)
         .add_plugin(HudPlugin)
-        .add_system(systems::input::input.system())
         .add_system(systems::spawning::drop_enemies.system())
         .add_system(systems::spawning::spawn_health.system())
+        .add_system(systems::gameplay::apply_effects.system())
         .add_system(systems::gameplay::cleanup_effects.system())
         .add_system(systems::visual_effects::run_visual_effects.system())
         .add_system(systems::spawning::spawn_new_enemy.system())
@@ -60,6 +61,7 @@ fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) 
         })
         .insert_resource(AwardTimer::new(5.0, 15.0))
         .spawn((Player::new(),))
+        .with(EntityEffects::default())
         .with(ActiveEffects::new())
         .with(VisualEffects::new())
         .with(Velocity(Vec2::new(0.0, 0.0)))

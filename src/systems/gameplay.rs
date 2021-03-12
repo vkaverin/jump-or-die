@@ -1,10 +1,28 @@
-use crate::effects::{ActiveEffects, VisualEffects};
+use crate::effects::{ActiveEffects, VisualEffects, EntityEffects};
 use crate::game::{Game, GameState};
 use bevy::prelude::*;
 use crate::world::Velocity;
-use crate::player::Player;
 use rand::Rng;
 use crate::enemies::Enemy;
+
+pub fn apply_effects(
+    game: ResMut<Game>,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut EntityEffects, &mut Velocity, &mut Transform)>,
+) {
+    if game.state != GameState::Running {
+        return;
+    }
+
+    for (entity, mut effects, mut velocity, mut transform) in query.iter_mut() {
+        for effect in &mut effects.active {
+            effect.tick(time.delta());
+            if !effect.is_expired() {
+                effect.effect().apply(entity, &mut velocity, &mut transform);
+            }
+        }
+    }
+}
 
 pub fn cleanup_effects(
     game: Res<Game>,
@@ -26,7 +44,7 @@ pub fn cleanup_effects(
 
 pub fn random_enemy_jump(
     game: Res<Game>,
-    mut query: Query<(&mut Velocity), With<(Enemy)>>
+    mut query: Query<&mut Velocity, With<Enemy>>
 ) {
     if game.state != GameState::Running {
         return;

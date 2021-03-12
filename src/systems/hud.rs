@@ -3,8 +3,6 @@ use crate::game::{Game, GameState};
 use crate::player::Player;
 use bevy::prelude::*;
 
-const STARTUP_STAGE: &str = "hud_startup";
-
 const PLAYER_STATUS_BAR_TOP_MARGIN: f32 = 16.0;
 const PLAYER_STATUS_BAR_LEFT_MARGIN: f32 = 16.0;
 
@@ -26,12 +24,15 @@ struct ActiveEffectsBar;
 
 pub struct HudPlugin;
 
+#[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
+struct Stage;
+
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_startup_stage_after(stage::STARTUP, STARTUP_STAGE, SystemStage::parallel())
-            .add_startup_system_to_stage(STARTUP_STAGE, setup_scoreboard.system())
-            .add_startup_system_to_stage(STARTUP_STAGE, setup_health_bar.system())
-            .add_startup_system_to_stage(STARTUP_STAGE, setup_game_status.system())
+        app.add_startup_stage_after(StartupStage::Startup, Stage, SystemStage::parallel())
+            .add_startup_system_to_stage(Stage, setup_scoreboard.system())
+            .add_startup_system_to_stage(Stage, setup_health_bar.system())
+            .add_startup_system_to_stage(Stage, setup_game_status.system())
             .add_system(update_scoreboard.system())
             .add_system(update_health_bar.system())
             .add_system(update_active_effects.system())

@@ -1,17 +1,37 @@
 use crate::game::{Game, GameState, GameStateEvent};
 use crate::player::{self, Player, PlayerMovementState};
-use crate::systems::debug::DebugBlock;
 use crate::world::{Velocity};
 use bevy::prelude::*;
+use crate::effects::{EntityEffects, EntityEffectDescriptor, SpeedBoost};
+use std::collections::{HashMap};
+use std::time::Duration;
+use crate::systems::debug::DebugBlock;
 
-pub fn input(
+#[derive(Default)]
+struct InputTracker {
+    last_press_time: HashMap<KeyCode, f64>,
+    last_pressed: Option<KeyCode>,
+}
+
+pub struct InputPlugin;
+
+impl Plugin for InputPlugin {
+    fn build(&self, app: &mut AppBuilder) {
+        app.init_resource::<InputTracker>()
+            .add_system(input.system());
+    }
+}
+
+fn input(
+    time: Res<Time>,
     input: Res<Input<KeyCode>>,
+    mut input_tracker: ResMut<InputTracker>,
     mut game: ResMut<Game>,
     mut game_events: ResMut<Events<GameStateEvent>>,
-    mut query: Query<(&mut Player, &mut Velocity)>,
+    mut query: Query<(&mut Player, &mut Velocity, &mut EntityEffects)>,
+    mut visibility_query: Query<&mut Visible>,
     #[cfg(feature = "debug")]
     mut debug_query: Query<(Entity, &Children), With<DebugBlock>>,
-    mut visibility_query: Query<&mut Visible>,
 ) {
     if input.just_pressed(KeyCode::D) {
         #[cfg(feature = "debug")]
@@ -30,7 +50,7 @@ pub fn input(
         }
     }
 
-    for (mut player, mut velocity) in query.iter_mut() {
+    for (mut player, mut velocity, mut effects) in query.iter_mut() {
         match game.state {
             GameState::WaitingForStart => {
                 if input.pressed(KeyCode::Space) {
@@ -39,11 +59,14 @@ pub fn input(
             }
             GameState::Running => {
                 input_on_running_game(
+                    &time,
                     &input,
                     &mut game_events,
                     &mut game,
+                    &mut input_tracker,
                     &mut player,
-                    &mut velocity
+                    &mut velocity,
+                    &mut effects,
                 );
             }
             GameState::Paused => {
@@ -57,11 +80,14 @@ pub fn input(
 }
 
 fn input_on_running_game(
+    time: &Res<Time>,
     input: &Res<Input<KeyCode>>,
     game_events: &mut ResMut<Events<GameStateEvent>>,
     game: &mut ResMut<Game>,
+    input_tracker: &mut ResMut<InputTracker>,
     player: &mut Mut<Player>,
     velocity: &mut Mut<Velocity>,
+    effects: &mut Mut<EntityEffects>,
 ) {
     if input.just_pressed(KeyCode::R) {
         game_events.send(GameStateEvent::Restart);
@@ -86,6 +112,24 @@ fn input_on_running_game(
 
             if input.pressed(KeyCode::Right) {
                 velocity.0.x = player::MOVEMENT_VELOCITY;
+            }
+
+            if let Some(just_pressed) = input.get_just_pressed().last() {
+                let now = time.seconds_since_startup();
+                if input_tracker.last_pressed.is_some() && *just_pressed == input_tracker.last_pressed.unwrap() {
+                    if let Some(last_press_time) = input_tracker.last_press_time.get(&just_pressed) {
+                        if now - last_press_time < 0.5 {
+                            let boost = SpeedBoost {
+                                x_delta: velocity.0.x * 3.0,
+                                y_delta: 0.0
+                            };
+                            let duration = Duration::from_secs_f32(0.1);
+                            effects.active.push(EntityEffectDescriptor::new_temporary(boost, duration))
+                        }
+                    }
+                }
+                input_tracker.last_press_time.insert(just_pressed.clone(), now);
+                input_tracker.last_pressed = Some(*just_pressed);
             }
         }
         _ => {}
