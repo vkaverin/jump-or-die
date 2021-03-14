@@ -16,7 +16,7 @@ pub fn gravity(
 
     for (mut velocity, sprite, transform) in query.iter_mut() {
         if transform.translation.y > sprite.size.y / 2.0 {
-            velocity.0.y -= gravity.0 * time.delta_seconds();
+            velocity.add_vertical(-gravity.0 * time.delta_seconds());
         }
     }
 }
@@ -37,11 +37,14 @@ pub fn movement(
     let window_right_border = window_half_x;
 
     for (entity, mut velocity, sprite, mut transform) in query.iter_mut() {
-        transform.translation.x += velocity.0.x * time.delta_seconds();
-        transform.translation.y += velocity.0.y * time.delta_seconds();
+        {
+            let v = velocity.current();
+            transform.translation.x += v.x * time.delta_seconds();
+            transform.translation.y += v.y * time.delta_seconds();
+        }
 
         if transform.translation.y <= sprite.size.y / 2.0 {
-            velocity.0.y = 0.0;
+            velocity.drop_vertical();
             transform.translation.y = sprite.size.y / 2.0;
         }
 
@@ -51,12 +54,10 @@ pub fn movement(
 
                 if transform.translation.x - player_sprite_half_x <= window_left_border {
                     transform.translation.x = window_left_border + player_sprite_half_x;
-                    velocity.0.x = 0.0;
+                    velocity.drop_horizontal();
                 } else if transform.translation.x + player_sprite_half_x >= window_right_border {
                     transform.translation.x = window_right_border - player_sprite_half_x;
-                    velocity.0.x = 0.0;
-                } else if velocity.0.x != 0.0 {
-                    velocity.0.x = player::MOVEMENT_VELOCITY * velocity.0.x.signum();
+                    velocity.drop_horizontal();
                 }
                 player::update_movement_state(&mut player, &velocity);
             }

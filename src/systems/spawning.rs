@@ -33,7 +33,7 @@ pub fn spawn_new_enemy(
 
     commands
         .spawn((Enemy,))
-        .with(Velocity(Vec2::new(
+        .with(Velocity::new(Vec2::new(
             -enemies::VELOCITY_X,
             enemies::VELOCITY_Y,
         )))
@@ -72,7 +72,7 @@ pub fn spawn_new_enemy(
                 },
                 ..Default::default()
             })
-            .with(Velocity(Vec2::new(
+            .with(Velocity::new(Vec2::new(
                 -enemies::VELOCITY_X,
                 enemies::VELOCITY_Y,
             )))
@@ -144,6 +144,6 @@ pub fn spawn_health(
             transform: Transform::from_translation(Vec3::new(initial_x, initial_y, 0.0)),
             ..Default::default()
         })
-        .with(Velocity(Vec2::new(-300.0, 0.0)))
+        .with(Velocity::with_horizontal(-300.0))
         .with(Collider::Award(Award::Health(health)));
 }

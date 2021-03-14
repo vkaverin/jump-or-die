@@ -5,6 +5,7 @@ use bevy::sprite::ColorMaterial;
 use bevy::asset::{Assets, Handle};
 use std::time::Duration;
 use crate::world::Velocity;
+use bevy::math::Vec2;
 
 type BoxedEntityEffect = Box<dyn EntityEffect + Send + Sync>;
 
@@ -15,6 +16,7 @@ pub enum EffectDuration {
 
 pub trait EntityEffect: Send + Sync {
     fn apply(&mut self, entity: Entity, velocity: &mut Velocity, transform: &mut Transform);
+    fn undo(&mut self, entity: Entity, velocity: &mut Velocity, transform: &mut Transform);
 }
 
 pub struct EntityEffectDescriptor {
@@ -65,14 +67,38 @@ pub struct EntityEffects {
 }
 
 pub struct SpeedBoost {
-    pub x_delta: f32,
-    pub y_delta: f32,
+    pub boost: Vec2,
+}
+
+impl SpeedBoost {
+
+    pub fn horizontal(v: f32) -> Self {
+        Self {
+            boost: Vec2::new(v, 1.0)
+        }
+    }
+
+    pub fn vertical(v: f32) -> Self {
+        Self {
+            boost: Vec2::new(1.0, v)
+        }
+    }
+}
+
+impl From<Vec2> for SpeedBoost {
+    fn from(v: Vec2) -> Self {
+        Self {
+            boost: v
+        }
+    }
 }
 
 impl EntityEffect for SpeedBoost {
     fn apply(&mut self, entity: Entity, velocity: &mut Velocity, transform: &mut Transform) {
-        velocity.0.x += self.x_delta;
-        velocity.0.y += self.y_delta;
+        velocity.set_boost(self.boost);
+    }
+    fn undo(&mut self, entity: Entity, velocity: &mut Velocity, transform: &mut Transform) {
+        velocity.drop_boost();
     }
 }
 

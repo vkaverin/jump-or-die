@@ -103,7 +103,7 @@ fn restart_game(
         player.health = player.max_health;
         active_effects.effects.clear();
         visual_effects.effects.clear();
-        velocity.0 = Vec2::zero();
+        velocity.reset();
         visibility.is_visible = true;
         transform.translation.x = player::INITIAL_POSITION_X;
         transform.translation.y = player::INITIAL_POSITION_Y;

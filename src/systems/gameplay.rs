@@ -19,6 +19,8 @@ pub fn apply_effects(
             effect.tick(time.delta());
             if !effect.is_expired() {
                 effect.effect().apply(entity, &mut velocity, &mut transform);
+            } else {
+                effect.effect().undo(entity, &mut velocity, &mut transform);
             }
         }
     }
@@ -54,8 +56,9 @@ pub fn random_enemy_jump(
 
     // TODO: Make it smarter.
     for mut velocity in query.iter_mut() {
-        if velocity.0.y == 0.0 && rng.gen_bool(0.01) {
-            velocity.0.y = crate::player::VELOCITY_ON_JUMP * 1.25;
+        let mut v = velocity.current();
+        if v.y == 0.0 && rng.gen_bool(0.01) {
+            velocity.set_vertical(crate::player::VELOCITY_ON_JUMP * 1.25);
             break;
         }
     }

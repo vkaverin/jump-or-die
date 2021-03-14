@@ -64,7 +64,7 @@ fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) 
         .with(EntityEffects::default())
         .with(ActiveEffects::new())
         .with(VisualEffects::new())
-        .with(Velocity(Vec2::new(0.0, 0.0)))
+        .with(Velocity::default())
         .with(AffectedByGravity)
         .with_bundle(SpriteBundle {
             sprite: Sprite::new(Vec2::new(player::WIDTH, player::HEIGHT)),

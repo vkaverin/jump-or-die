@@ -76,8 +76,8 @@ fn update_debug_info_panel(
     for mut text in text_query.iter_mut() {
         for (player, velocity, transform) in player_query.iter() {
             text.sections[0].value = format!(
-                "Game: {:#?}\nPlayer: {:#?}\nVelocity: {:?}\n Translation: {:?}\n",
-                game, player, velocity.0, transform.translation.truncate()
+                "Game: {:#?}\nPlayer: {:#?}\nVelocity: {:#?}\n Translation: {:#?}\n",
+                game, player, velocity, transform.translation.truncate()
             );
 
             if let Some(measurement) =

@@ -103,15 +103,15 @@ fn input_on_running_game(
         PlayerMovementState::Staying | PlayerMovementState::Running => {
             if input.pressed(KeyCode::Up) || input.pressed(KeyCode::Space) {
                 player.movement_state = PlayerMovementState::Jumping;
-                velocity.0.y = player::VELOCITY_ON_JUMP;
+                velocity.set_vertical(player::VELOCITY_ON_JUMP);
             }
 
             if input.pressed(KeyCode::Left) {
-                velocity.0.x = -player::MOVEMENT_VELOCITY;
+                velocity.set_horizontal(-player::MOVEMENT_VELOCITY);
             }
 
             if input.pressed(KeyCode::Right) {
-                velocity.0.x = player::MOVEMENT_VELOCITY;
+                velocity.set_horizontal(player::MOVEMENT_VELOCITY);
             }
 
             if let Some(just_pressed) = input.get_just_pressed().last() {
@@ -119,11 +119,8 @@ fn input_on_running_game(
                 if input_tracker.last_pressed.is_some() && *just_pressed == input_tracker.last_pressed.unwrap() {
                     if let Some(last_press_time) = input_tracker.last_press_time.get(&just_pressed) {
                         if now - last_press_time < 0.5 {
-                            let boost = SpeedBoost {
-                                x_delta: velocity.0.x * 3.0,
-                                y_delta: 0.0
-                            };
-                            let duration = Duration::from_secs_f32(0.1);
+                            let boost = SpeedBoost::horizontal(3.0);
+                            let duration = Duration::from_millis(150);
                             effects.active.push(EntityEffectDescriptor::new_temporary(boost, duration))
                         }
                     }
