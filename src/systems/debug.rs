@@ -39,31 +39,33 @@ fn debug_setup(
         })
         .with(DebugBlock)
         .with_children(|parent| {
-            parent.spawn(TextBundle {
-                text: Text::with_section(
-                    "",
-                    TextStyle {
-                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                        font_size: 15.0,
-                        color: Color::WHITE,
-                    },
-                    Default::default()
-                ),
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    position: Rect {
-                        top: Val::Px(5.0),
-                        left: Val::Px(5.0),
+            parent
+                .spawn(TextBundle {
+                    text: Text::with_section(
+                        "",
+                        TextStyle {
+                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                            font_size: 15.0,
+                            color: Color::WHITE,
+                        },
+                        Default::default(),
+                    ),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        position: Rect {
+                            top: Val::Px(5.0),
+                            left: Val::Px(5.0),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     },
+                    visible: Visible {
+                        is_visible: false,
+                        is_transparent: true,
+                    },
                     ..Default::default()
-                },
-                visible: Visible {
-                    is_visible: false,
-                    is_transparent: true,
-                },
-                ..Default::default()
-            }).with(DebugText);
+                })
+                .with(DebugText);
         });
 }
 
@@ -77,25 +79,30 @@ fn update_debug_info_panel(
         for (player, velocity, transform) in player_query.iter() {
             text.sections[0].value = format!(
                 "Game: {:#?}\nPlayer: {:#?}\nVelocity: {:#?}\n Translation: {:#?}\n",
-                game, player, velocity, transform.translation.truncate()
+                game,
+                player,
+                velocity,
+                transform.translation.truncate()
             );
 
-            if let Some(measurement) =
-            diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FPS)
+            if let Some(measurement) = diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FPS)
             {
-                text.sections[0].value
+                text.sections[0]
+                    .value
                     .push_str(&format!("\nFPS: {:.2}", measurement.value));
             }
             if let Some(measurement) =
-            diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_TIME)
+                diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_TIME)
             {
-                text.sections[0].value
+                text.sections[0]
+                    .value
                     .push_str(&format!("\nframe time: {:.3}", measurement.value));
             }
             if let Some(measurement) =
-            diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_COUNT)
+                diagnostics.get_measurement(FrameTimeDiagnosticsPlugin::FRAME_COUNT)
             {
-                text.sections[0].value
+                text.sections[0]
+                    .value
                     .push_str(&format!("\nframes count: {}", measurement.value));
             }
         }

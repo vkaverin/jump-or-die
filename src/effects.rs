@@ -1,11 +1,11 @@
 use bevy::core::Timer;
-use bevy::prelude::{Transform, Visible, Entity};
+use bevy::prelude::{Entity, Transform, Visible};
 use bevy::sprite::ColorMaterial;
 
-use bevy::asset::{Assets, Handle};
-use std::time::Duration;
 use crate::world::Velocity;
+use bevy::asset::{Assets, Handle};
 use bevy::math::Vec2;
+use std::time::Duration;
 
 type BoxedEntityEffect = Box<dyn EntityEffect + Send + Sync>;
 
@@ -21,7 +21,7 @@ pub trait EntityEffect: Send + Sync {
 
 pub struct EntityEffectDescriptor {
     effect: BoxedEntityEffect,
-    duration: EffectDuration
+    duration: EffectDuration,
 }
 
 impl EntityEffectDescriptor {
@@ -63,7 +63,7 @@ impl EntityEffectDescriptor {
 
 #[derive(Default)]
 pub struct EntityEffects {
-    pub active: Vec<EntityEffectDescriptor>
+    pub active: Vec<EntityEffectDescriptor>,
 }
 
 pub struct SpeedBoost {
@@ -71,25 +71,22 @@ pub struct SpeedBoost {
 }
 
 impl SpeedBoost {
-
     pub fn horizontal(v: f32) -> Self {
         Self {
-            boost: Vec2::new(v, 1.0)
+            boost: Vec2::new(v, 1.0),
         }
     }
 
     pub fn vertical(v: f32) -> Self {
         Self {
-            boost: Vec2::new(1.0, v)
+            boost: Vec2::new(1.0, v),
         }
     }
 }
 
 impl From<Vec2> for SpeedBoost {
     fn from(v: Vec2) -> Self {
-        Self {
-            boost: v
-        }
+        Self { boost: v }
     }
 }
 

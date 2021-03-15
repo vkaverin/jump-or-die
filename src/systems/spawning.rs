@@ -1,7 +1,7 @@
 use crate::awards::{Award, AwardTimer};
 use crate::enemies;
 use crate::enemies::{Enemy, SpawnTimer};
-use crate::game::{GameState, GameEntity};
+use crate::game::{GameEntity, GameState};
 use crate::player::Player;
 use crate::world::{Collider, Velocity};
 use bevy::prelude::*;

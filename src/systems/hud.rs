@@ -47,9 +47,9 @@ fn setup_scoreboard(commands: &mut Commands, asset_server: ResMut<AssetServer>) 
             TextStyle {
                 font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                 color: Color::rgb(0.5, 0.5, 0.5),
-                font_size: 40.0
+                font_size: 40.0,
             },
-            Default::default()
+            Default::default(),
         ),
         style: Style {
             position_type: PositionType::Absolute,
@@ -138,7 +138,7 @@ fn setup_health_bar(
                     color: Color::rgb(0.5, 0.5, 0.5),
                     font_size: 32.0,
                 },
-                Default::default()
+                Default::default(),
             ),
             style: Style {
                 position_type: PositionType::Absolute,
@@ -256,7 +256,7 @@ fn setup_game_status(commands: &mut Commands, asset_server: ResMut<AssetServer>)
                 color: Color::rgb(0.5, 0.5, 0.5),
                 font_size: 120.0,
             },
-            Default::default()
+            Default::default(),
         ),
         style: Style {
             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),

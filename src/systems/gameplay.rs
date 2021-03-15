@@ -1,8 +1,8 @@
-use crate::game::{GameState, Game, GameEntity};
-use crate::effects::{ActiveEffects, VisualEffects, EntityEffects};
+use crate::effects::{ActiveEffects, EntityEffects, VisualEffects};
 use crate::enemies::Enemy;
+use crate::game::{Game, GameEntity, GameState};
 use crate::player::{self, Player};
-use crate::world::{Velocity};
+use crate::world::Velocity;
 
 use bevy::prelude::*;
 use rand::Rng;
@@ -48,7 +48,7 @@ pub fn cleanup_effects(
 
 pub fn random_enemy_jump(
     state: Res<State<GameState>>,
-    mut query: Query<&mut Velocity, With<Enemy>>
+    mut query: Query<&mut Velocity, With<Enemy>>,
 ) {
     if *state != GameState::Running {
         return;

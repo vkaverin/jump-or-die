@@ -1,5 +1,5 @@
 use crate::effects::VisualEffects;
-use crate::game::{GameState};
+use crate::game::GameState;
 use crate::player::Player;
 use bevy::prelude::*;
 

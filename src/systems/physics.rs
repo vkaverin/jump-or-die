@@ -1,4 +1,4 @@
-use crate::game::{GameState};
+use crate::game::GameState;
 use crate::player::{self, Player, PlayerEvent};
 use crate::world::{Collider, Gravity, Velocity};
 use bevy::prelude::*;
@@ -28,7 +28,7 @@ pub fn movement(
     mut player_entity_query: Query<(Entity, &mut Player)>,
     mut query: Query<(Entity, &mut Velocity, &Sprite, &mut Transform)>,
 ) {
-    if *state != GameState::Running  {
+    if *state != GameState::Running {
         return;
     }
 
