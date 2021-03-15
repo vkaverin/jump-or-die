@@ -1,32 +1,31 @@
+use bevy::prelude::*;
+
 pub enum GameStateEvent {
     Restart,
 }
 
+#[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
+pub enum GameStage {
+    AcceptInput,
+    Game,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GameState {
-    WaitingForStart,
+    StartMenu,
     Running,
     Paused,
     GameOver,
 }
 
-#[derive(Debug)]
-pub struct Game {
-    pub state: GameState,
-    pub score: f32,
-    pub best_score: f32,
+impl PartialEq<GameState> for State<GameState> {
+    fn eq(&self, other: &GameState) -> bool {
+        *self.current() == *other
+    }
 }
 
-impl Game {
-    pub fn new() -> Self {
-        Game {
-            state: GameState::WaitingForStart,
-            score: 0.0,
-            best_score: 0.0,
-        }
-    }
-
-    pub fn is_running(&self) -> bool {
-        self.state == GameState::Running
-    }
+#[derive(Debug, Default)]
+pub struct Game {
+    pub score: f32,
+    pub best_score: f32,
 }

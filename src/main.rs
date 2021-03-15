@@ -9,7 +9,7 @@ mod world;
 use crate::awards::AwardTimer;
 use crate::effects::{ActiveEffects, VisualEffects, EntityEffects};
 use crate::enemies::SpawnTimer;
-use crate::game::{Game, GameStateEvent};
+use crate::game::{Game, GameStateEvent, GameState, GameStage};
 use crate::player::{Player, PlayerEvent};
 use crate::systems::plugins::*;
 use crate::world::{AffectedByGravity, Gravity, Velocity};
@@ -25,23 +25,24 @@ fn main() {
         ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(InputPlugin)
+        .add_plugin(HudPlugin)
         .add_event::<GameStateEvent>()
         .add_event::<PlayerEvent>()
         .add_startup_system(setup.system())
-        .add_plugin(InputPlugin)
-        .add_plugin(HudPlugin)
-        .add_system(systems::spawning::drop_enemies.system())
-        .add_system(systems::spawning::spawn_health.system())
-        .add_system(systems::gameplay::apply_effects.system())
-        .add_system(systems::gameplay::cleanup_effects.system())
-        .add_system(systems::visual_effects::run_visual_effects.system())
-        .add_system(systems::spawning::spawn_new_enemy.system())
-        .add_system(systems::gameplay::random_enemy_jump.system())
-        .add_system(systems::physics::movement.system())
-        .add_system(systems::physics::gravity.system())
-        .add_system(systems::physics::collisions.system())
-        .add_system(systems::events::player_events.system())
-        .add_system(systems::events::game_state_events.system());
+        .add_stage_after(CoreStage::Update, GameStage::Game, StateStage::<GameState>::default())
+        .on_state_update(GameStage::Game, GameState::Running, systems::spawning::drop_enemies.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::spawning::spawn_health.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::gameplay::apply_effects.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::gameplay::cleanup_effects.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::visual_effects::run_visual_effects.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::spawning::spawn_new_enemy.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::gameplay::random_enemy_jump.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::physics::movement.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::physics::gravity.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::physics::collisions.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::events::player_events.system())
+        .on_state_update(GameStage::Game, GameState::Running, systems::events::game_state_events.system());
 
     #[cfg(feature = "debug")]
     app.add_plugin(DebugPlugin);
@@ -54,7 +55,8 @@ fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) 
         .spawn(OrthographicCameraBundle::new_2d())
         .spawn(UiCameraBundle::default())
         .insert_resource(ClearColor(Color::WHITE))
-        .insert_resource(Game::new())
+        .insert_resource(Game::default())
+        .insert_resource(State::new(GameState::StartMenu))
         .insert_resource(Gravity::default())
         .insert_resource(SpawnTimer {
             timer: Timer::from_seconds(3.0, true),

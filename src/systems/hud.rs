@@ -137,7 +137,6 @@ fn setup_health_bar(
                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                     color: Color::rgb(0.5, 0.5, 0.5),
                     font_size: 32.0,
-                    ..Default::default()
                 },
                 Default::default()
             ),
@@ -221,12 +220,13 @@ fn update_active_effects(
 }
 
 fn update_game_state_screen(
+    state: Res<State<GameState>>,
     game: Res<Game>,
     mut query: Query<(&mut Text, &mut Visible), With<GameStateLabel>>,
 ) {
     for (mut text, mut visibility) in query.iter_mut() {
-        match game.state {
-            GameState::WaitingForStart => {
+        match **state {
+            GameState::StartMenu => {
                 visibility.is_visible = true;
                 text.sections[0].value = "Press Space to start".to_string();
             }
@@ -255,7 +255,6 @@ fn setup_game_status(commands: &mut Commands, asset_server: ResMut<AssetServer>)
                 font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                 color: Color::rgb(0.5, 0.5, 0.5),
                 font_size: 120.0,
-                ..Default::default()
             },
             Default::default()
         ),

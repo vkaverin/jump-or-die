@@ -1,7 +1,7 @@
 use crate::awards::{Award, AwardTimer};
 use crate::enemies;
 use crate::enemies::{Enemy, SpawnTimer};
-use crate::game::Game;
+use crate::game::{GameState};
 use crate::player::Player;
 use crate::world::{Collider, Velocity};
 use bevy::prelude::*;
@@ -11,12 +11,12 @@ pub fn spawn_new_enemy(
     commands: &mut Commands,
     window: Res<WindowDescriptor>,
     time: Res<Time>,
-    game: Res<Game>,
+    state: Res<State<GameState>>,
     mut spawn_timer: ResMut<SpawnTimer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     player_query: Query<&Sprite, With<Player>>,
 ) {
-    if !game.is_running() {
+    if *state != GameState::Running {
         return;
     }
 
@@ -83,10 +83,10 @@ pub fn spawn_new_enemy(
 pub fn drop_enemies(
     commands: &mut Commands,
     game_window: Res<WindowDescriptor>,
-    game: Res<Game>,
+    state: Res<State<GameState>>,
     query: Query<(Entity, &Sprite, &Transform), With<Enemy>>,
 ) {
-    if !game.is_running() {
+    if *state != GameState::Running {
         return;
     }
 
@@ -101,13 +101,13 @@ pub fn spawn_health(
     commands: &mut Commands,
     window: Res<WindowDescriptor>,
     time: Res<Time>,
-    game: Res<Game>,
+    state: Res<State<GameState>>,
     asset_server: Res<AssetServer>,
     mut timer: ResMut<AwardTimer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     players: Query<&Player>,
 ) {
-    if !game.is_running() {
+    if *state != GameState::Running {
         return;
     }
 

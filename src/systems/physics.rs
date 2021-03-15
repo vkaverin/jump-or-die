@@ -1,4 +1,4 @@
-use crate::game::{Game, GameState};
+use crate::game::{GameState};
 use crate::player::{self, Player, PlayerEvent};
 use crate::world::{Collider, Gravity, Velocity};
 use bevy::prelude::*;
@@ -6,11 +6,11 @@ use bevy::sprite::collide_aabb;
 
 pub fn gravity(
     time: Res<Time>,
-    game: Res<Game>,
+    state: Res<State<GameState>>,
     gravity: Res<Gravity>,
     mut query: Query<(&mut Velocity, &Sprite, &Transform)>,
 ) {
-    if game.state != GameState::Running {
+    if *state != GameState::Running {
         return;
     }
 
@@ -24,11 +24,11 @@ pub fn gravity(
 pub fn movement(
     time: Res<Time>,
     game_window: Res<WindowDescriptor>,
-    game: Res<Game>,
+    state: Res<State<GameState>>,
     mut player_entity_query: Query<(Entity, &mut Player)>,
     mut query: Query<(Entity, &mut Velocity, &Sprite, &mut Transform)>,
 ) {
-    if game.state != GameState::Running {
+    if *state != GameState::Running  {
         return;
     }
 

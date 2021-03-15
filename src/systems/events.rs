@@ -8,6 +8,7 @@ use bevy::prelude::*;
 
 pub fn player_events(
     mut game: ResMut<Game>,
+    mut state: ResMut<State<GameState>>,
     mut event_reader: EventReader<PlayerEvent>,
     mut player_query: Query<(&mut Player, &mut ActiveEffects, &mut VisualEffects)>,
 ) {
@@ -28,7 +29,7 @@ pub fn player_events(
                     if !is_invulnerable && player.health > 0 {
                         player.health -= 1;
                         if player.health == 0 {
-                            game.state = GameState::GameOver;
+                            state.set_next(GameState::GameOver).unwrap();
                         } else {
                             effects.effects.push(Effect::new_invulnerability());
                             visual_effects
@@ -57,6 +58,7 @@ pub fn game_state_events(
     commands: &mut Commands,
     mut event_reader: EventReader<GameStateEvent>,
     mut game: ResMut<Game>,
+    mut state: ResMut<State<GameState>>,
     mut player_query: Query<(
         &mut Player,
         &mut ActiveEffects,
@@ -70,7 +72,7 @@ pub fn game_state_events(
     for e in event_reader.iter() {
         match e {
             GameStateEvent::Restart => {
-                restart_game(commands, &mut game, &mut player_query, &colliders);
+                restart_game(commands, &mut game, &mut state, &mut player_query, &colliders);
             }
         }
     }
@@ -79,6 +81,7 @@ pub fn game_state_events(
 fn restart_game(
     commands: &mut Commands,
     game: &mut ResMut<Game>,
+    state: &mut ResMut<State<GameState>>,
     player_query: &mut Query<(
         &mut Player,
         &mut ActiveEffects,
@@ -89,7 +92,7 @@ fn restart_game(
     )>,
     colliders: &Query<Entity, With<Collider>>,
 ) {
-    game.state = GameState::Running;
+    state.set_next(GameState::Running).unwrap();
     game.score = 0.0;
     for (
         mut player,
