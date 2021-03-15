@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use crate::effects::{EntityEffects, EntityEffectDescriptor, SpeedBoost};
 use std::collections::{HashMap};
 use std::time::Duration;
+use crate::systems::debug::DebugBlock;
 
 #[derive(Default)]
 struct InputTracker {
@@ -37,7 +38,6 @@ fn start_menu_input(
 fn running_game_input(
     time: Res<Time>,
     input: Res<Input<KeyCode>>,
-    mut game_events: ResMut<Events<GameStateEvent>>,
     mut state: ResMut<State<GameState>>,
     mut input_tracker: ResMut<InputTracker>,
     mut query: Query<(&mut Player, &mut Velocity, &mut EntityEffects)>,
@@ -62,7 +62,7 @@ fn running_game_input(
     }
 
     if input.just_pressed(KeyCode::R) {
-        game_events.send(GameStateEvent::Restart);
+        state.set_next(GameState::Starting);
         return;
     }
 
@@ -110,24 +110,24 @@ fn running_game_input(
 fn paused_game_input(
     input: Res<Input<KeyCode>>,
     mut state: ResMut<State<GameState>>,
-    mut game_events: ResMut<Events<GameStateEvent>>,
 ) {
     if input.just_pressed(KeyCode::R) {
-        game_events.send(GameStateEvent::Restart);
+        state.set_next(GameState::Starting);
         return;
     }
 
     if input.just_pressed(KeyCode::Escape) || input.just_pressed(KeyCode::P) {
         state.set_next(GameState::Running).unwrap();
+        return;
     }
 }
 
 fn game_over_menu_input(
     input: Res<Input<KeyCode>>,
-    mut game_events: ResMut<Events<GameStateEvent>>,
+    mut state: ResMut<State<GameState>>,
 ) {
     if input.just_pressed(KeyCode::R) {
-        game_events.send(GameStateEvent::Restart);
+        state.set_next(GameState::Starting);
         return;
     }
 }

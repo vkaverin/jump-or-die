@@ -4,6 +4,8 @@ pub enum GameStateEvent {
     Restart,
 }
 
+pub struct GameEntity;
+
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
 pub enum GameStage {
     AcceptInput,
@@ -13,6 +15,7 @@ pub enum GameStage {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GameState {
     StartMenu,
+    Starting,
     Running,
     Paused,
     GameOver,

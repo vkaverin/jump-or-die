@@ -230,7 +230,7 @@ fn update_game_state_screen(
                 visibility.is_visible = true;
                 text.sections[0].value = "Press Space to start".to_string();
             }
-            GameState::Running => {
+            GameState::Starting | GameState::Running => {
                 visibility.is_visible = false;
                 text.sections[0].value = "".to_string();
             }

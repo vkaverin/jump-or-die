@@ -9,7 +9,7 @@ mod world;
 use crate::awards::AwardTimer;
 use crate::effects::{ActiveEffects, VisualEffects, EntityEffects};
 use crate::enemies::SpawnTimer;
-use crate::game::{Game, GameStateEvent, GameState, GameStage};
+use crate::game::{Game, GameStateEvent, GameState, GameStage, GameEntity};
 use crate::player::{Player, PlayerEvent};
 use crate::systems::plugins::*;
 use crate::world::{AffectedByGravity, Gravity, Velocity};
@@ -31,6 +31,7 @@ fn main() {
         .add_event::<PlayerEvent>()
         .add_startup_system(setup.system())
         .add_stage_after(CoreStage::Update, GameStage::Game, StateStage::<GameState>::default())
+        .on_state_enter(GameStage::Game, GameState::Starting, systems::gameplay::start_game.system())
         .on_state_update(GameStage::Game, GameState::Running, systems::spawning::drop_enemies.system())
         .on_state_update(GameStage::Game, GameState::Running, systems::spawning::spawn_health.system())
         .on_state_update(GameStage::Game, GameState::Running, systems::gameplay::apply_effects.system())
@@ -41,8 +42,7 @@ fn main() {
         .on_state_update(GameStage::Game, GameState::Running, systems::physics::movement.system())
         .on_state_update(GameStage::Game, GameState::Running, systems::physics::gravity.system())
         .on_state_update(GameStage::Game, GameState::Running, systems::physics::collisions.system())
-        .on_state_update(GameStage::Game, GameState::Running, systems::events::player_events.system())
-        .on_state_update(GameStage::Game, GameState::Running, systems::events::game_state_events.system());
+        .on_state_update(GameStage::Game, GameState::Running, systems::events::player_events.system());
 
     #[cfg(feature = "debug")]
     app.add_plugin(DebugPlugin);
@@ -63,6 +63,7 @@ fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) 
         })
         .insert_resource(AwardTimer::new(5.0, 15.0))
         .spawn((Player::new(),))
+        .with(GameEntity)
         .with(EntityEffects::default())
         .with(ActiveEffects::new())
         .with(VisualEffects::new())

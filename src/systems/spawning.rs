@@ -1,7 +1,7 @@
 use crate::awards::{Award, AwardTimer};
 use crate::enemies;
 use crate::enemies::{Enemy, SpawnTimer};
-use crate::game::{GameState};
+use crate::game::{GameState, GameEntity};
 use crate::player::Player;
 use crate::world::{Collider, Velocity};
 use bevy::prelude::*;
@@ -33,6 +33,7 @@ pub fn spawn_new_enemy(
 
     commands
         .spawn((Enemy,))
+        .with(GameEntity)
         .with(Velocity::new(Vec2::new(
             -enemies::VELOCITY_X,
             enemies::VELOCITY_Y,
@@ -144,6 +145,7 @@ pub fn spawn_health(
             transform: Transform::from_translation(Vec3::new(initial_x, initial_y, 0.0)),
             ..Default::default()
         })
+        .with(GameEntity)
         .with(Velocity::with_horizontal(-300.0))
         .with(Collider::Award(Award::Health(health)));
 }

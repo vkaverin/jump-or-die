@@ -1,9 +1,11 @@
+use crate::game::{GameState, Game, GameEntity};
 use crate::effects::{ActiveEffects, VisualEffects, EntityEffects};
-use crate::game::{GameState};
-use bevy::prelude::*;
-use crate::world::Velocity;
-use rand::Rng;
 use crate::enemies::Enemy;
+use crate::player::{self, Player};
+use crate::world::{Velocity};
+
+use bevy::prelude::*;
+use rand::Rng;
 
 pub fn apply_effects(
     time: Res<Time>,
@@ -62,4 +64,46 @@ pub fn random_enemy_jump(
             break;
         }
     }
+}
+
+pub fn start_game(
+    commands: &mut Commands,
+    mut game: ResMut<Game>,
+    mut state: ResMut<State<GameState>>,
+    mut player_query: Query<(
+        &mut Player,
+        &mut ActiveEffects,
+        &mut VisualEffects,
+        &mut Velocity,
+        &mut Visible,
+        &mut Transform,
+    )>,
+    entities: Query<Entity, (With<GameEntity>, Without<Player>)>,
+) {
+    game.score = 0.0;
+
+    for entity in entities.iter() {
+        commands.despawn(entity);
+    }
+
+    for (
+        mut player,
+        mut active_effects,
+        mut visual_effects,
+        mut velocity,
+        mut visibility,
+        mut transform,
+    ) in player_query.iter_mut()
+    {
+        player.health = player.max_health;
+
+        active_effects.effects.clear();
+        visual_effects.effects.clear();
+        velocity.reset();
+        visibility.is_visible = true;
+        transform.translation.x = player::INITIAL_POSITION_X;
+        transform.translation.y = player::INITIAL_POSITION_Y;
+    }
+
+    state.set_next(GameState::Running);
 }
