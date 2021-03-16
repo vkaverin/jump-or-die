@@ -6,14 +6,9 @@ use bevy::sprite::collide_aabb;
 
 pub fn gravity(
     time: Res<Time>,
-    state: Res<State<GameState>>,
     gravity: Res<Gravity>,
     mut query: Query<(&mut Velocity, &Sprite, &Transform)>,
 ) {
-    if *state != GameState::Running {
-        return;
-    }
-
     for (mut velocity, sprite, transform) in query.iter_mut() {
         if transform.translation.y > sprite.size.y / 2.0 {
             velocity.add_vertical(-gravity.0 * time.delta_seconds());
@@ -24,14 +19,9 @@ pub fn gravity(
 pub fn movement(
     time: Res<Time>,
     game_window: Res<WindowDescriptor>,
-    state: Res<State<GameState>>,
     mut player_entity_query: Query<(Entity, &mut Player)>,
     mut query: Query<(Entity, &mut Velocity, &Sprite, &mut Transform)>,
 ) {
-    if *state != GameState::Running {
-        return;
-    }
-
     let window_half_x = game_window.width as f32 / 2.0;
     let window_left_border = -window_half_x;
     let window_right_border = window_half_x;
@@ -66,8 +56,8 @@ pub fn movement(
 }
 
 pub fn collisions(
-    commands: &mut Commands,
-    mut events: ResMut<Events<PlayerEvent>>,
+    mut commands: Commands,
+    mut events: EventWriter<PlayerEvent>,
     player_query: Query<(&Player, &Sprite, &Transform)>,
     colliders: Query<(Entity, &Collider, &Sprite, &Transform)>,
 ) {

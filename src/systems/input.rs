@@ -1,11 +1,11 @@
 use crate::effects::{EntityEffectDescriptor, EntityEffects, SpeedBoost};
-use crate::game::{GameStage, GameState, GameStateEvent};
+use crate::game::GameState;
 use crate::player::{self, Player, PlayerMovementState};
 use crate::systems::debug::DebugBlock;
 use crate::world::Velocity;
 use bevy::prelude::*;
 use std::collections::HashMap;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 #[derive(Default)]
 struct InputTracker {
@@ -18,37 +18,25 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.init_resource::<InputTracker>()
-            .add_stage_after(
-                CoreStage::PreUpdate,
-                GameStage::AcceptInput,
-                StateStage::<GameState>::default(),
+            .add_system_set(
+                SystemSet::on_update(GameState::StartMenu).with_system(start_menu_input.system()),
             )
-            .on_state_update(
-                GameStage::AcceptInput,
-                GameState::StartMenu,
-                start_menu_input.system(),
+            .add_system_set(
+                SystemSet::on_update(GameState::Running).with_system(running_game_input.system()),
             )
-            .on_state_update(
-                GameStage::AcceptInput,
-                GameState::Running,
-                running_game_input.system(),
+            .add_system_set(
+                SystemSet::on_update(GameState::Paused).with_system(paused_game_input.system()),
             )
-            .on_state_update(
-                GameStage::AcceptInput,
-                GameState::Paused,
-                paused_game_input.system(),
-            )
-            .on_state_update(
-                GameStage::AcceptInput,
-                GameState::GameOver,
-                game_over_menu_input.system(),
+            .add_system_set(
+                SystemSet::on_update(GameState::GameOver)
+                    .with_system(game_over_menu_input.system()),
             );
     }
 }
 
 fn start_menu_input(input: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>) {
     if input.pressed(KeyCode::Space) {
-        state.set_next(GameState::Running).unwrap();
+        state.set_next(GameState::Starting).unwrap();
     }
 }
 
@@ -78,13 +66,9 @@ fn running_game_input(
     }
 
     if input.just_pressed(KeyCode::R) {
-        state.set_next(GameState::Starting);
-        return;
-    }
-
-    if input.just_pressed(KeyCode::Escape) || input.just_pressed(KeyCode::P) {
+        state.set_next(GameState::Starting).unwrap();
+    } else if input.just_pressed(KeyCode::Escape) || input.just_pressed(KeyCode::P) {
         state.set_next(GameState::Paused).unwrap();
-        return;
     }
 
     for (mut player, mut velocity, mut effects) in query.iter_mut() {
@@ -120,9 +104,8 @@ fn running_game_input(
                             }
                         }
                     }
-                    input_tracker
-                        .last_press_time
-                        .insert(just_pressed.clone(), now);
+
+                    input_tracker.last_press_time.insert(*just_pressed, now);
                     input_tracker.last_pressed = Some(*just_pressed);
                 }
             }
@@ -133,19 +116,14 @@ fn running_game_input(
 
 fn paused_game_input(input: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>) {
     if input.just_pressed(KeyCode::R) {
-        state.set_next(GameState::Starting);
-        return;
-    }
-
-    if input.just_pressed(KeyCode::Escape) || input.just_pressed(KeyCode::P) {
+        state.set_next(GameState::Starting).unwrap();
+    } else if input.just_pressed(KeyCode::Escape) || input.just_pressed(KeyCode::P) {
         state.set_next(GameState::Running).unwrap();
-        return;
     }
 }
 
 fn game_over_menu_input(input: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>) {
     if input.just_pressed(KeyCode::R) {
-        state.set_next(GameState::Starting);
-        return;
+        state.set_next(GameState::Starting).unwrap();
     }
 }

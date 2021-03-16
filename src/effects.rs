@@ -204,8 +204,8 @@ impl PeriodicInvisibility {
 
 impl VisualEffect for PeriodicInvisibility {
     fn tick(&mut self, time: f32) {
-        self.local_timer.tick(time);
-        self.global_timer.tick(time);
+        self.local_timer.tick(Duration::from_secs_f32(time));
+        self.global_timer.tick(Duration::from_secs_f32(time));
     }
 
     fn apply(

@@ -1,9 +1,5 @@
 use bevy::prelude::*;
 
-pub enum GameStateEvent {
-    Restart,
-}
-
 pub struct GameEntity;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]

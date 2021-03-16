@@ -9,13 +9,8 @@ use rand::Rng;
 
 pub fn apply_effects(
     time: Res<Time>,
-    state: Res<State<GameState>>,
     mut query: Query<(Entity, &mut EntityEffects, &mut Velocity, &mut Transform)>,
 ) {
-    if *state != GameState::Running {
-        return;
-    }
-
     for (entity, mut effects, mut velocity, mut transform) in query.iter_mut() {
         for effect in &mut effects.active {
             effect.tick(time.delta());
@@ -30,13 +25,8 @@ pub fn apply_effects(
 
 pub fn cleanup_effects(
     time: Res<Time>,
-    state: Res<State<GameState>>,
     mut query: Query<(&mut ActiveEffects, &mut VisualEffects)>,
 ) {
-    if *state != GameState::Running {
-        return;
-    }
-
     for (mut effects, mut visual_effects) in query.iter_mut() {
         for effect in &mut effects.effects {
             effect.consume_time(time.delta_seconds());
@@ -46,14 +36,7 @@ pub fn cleanup_effects(
     }
 }
 
-pub fn random_enemy_jump(
-    state: Res<State<GameState>>,
-    mut query: Query<&mut Velocity, With<Enemy>>,
-) {
-    if *state != GameState::Running {
-        return;
-    }
-
+pub fn random_enemy_jump(mut query: Query<&mut Velocity, With<Enemy>>) {
     let mut rng = rand::thread_rng();
 
     // TODO: Make it smarter.
@@ -67,11 +50,12 @@ pub fn random_enemy_jump(
 }
 
 pub fn start_game(
-    commands: &mut Commands,
+    mut commands: Commands,
     mut game: ResMut<Game>,
     mut state: ResMut<State<GameState>>,
     mut player_query: Query<(
         &mut Player,
+        &mut EntityEffects,
         &mut ActiveEffects,
         &mut VisualEffects,
         &mut Velocity,
@@ -88,6 +72,7 @@ pub fn start_game(
 
     for (
         mut player,
+        mut entity_effects,
         mut active_effects,
         mut visual_effects,
         mut velocity,
@@ -97,6 +82,7 @@ pub fn start_game(
     {
         player.health = player.max_health;
 
+        entity_effects.active.clear();
         active_effects.effects.clear();
         visual_effects.effects.clear();
         velocity.reset();
@@ -105,5 +91,5 @@ pub fn start_game(
         transform.translation.y = player::INITIAL_POSITION_Y;
     }
 
-    state.set_next(GameState::Running);
+    state.set_next(GameState::Running).unwrap();
 }

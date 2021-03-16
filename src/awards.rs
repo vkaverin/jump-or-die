@@ -28,7 +28,8 @@ impl AwardTimer {
 
     pub fn refill(&mut self) {
         let mut rng = rand::thread_rng();
-        self.timer
-            .set_duration(rng.gen_range(self.min_time, self.max_time));
+        self.timer.set_duration(Duration::from_secs_f32(
+            rng.gen_range(self.min_time, self.max_time),
+        ));
     }
 }

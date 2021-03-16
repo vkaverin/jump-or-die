@@ -40,7 +40,7 @@ impl Plugin for HudPlugin {
     }
 }
 
-fn setup_scoreboard(commands: &mut Commands, asset_server: ResMut<AssetServer>) {
+fn setup_scoreboard(mut commands: Commands, asset_server: ResMut<AssetServer>) {
     commands.spawn((Scoreboard,)).with_bundle(TextBundle {
         text: Text::with_section(
             "",
@@ -71,7 +71,7 @@ fn update_scoreboard(game: Res<Game>, mut query: Query<&mut Text, With<Scoreboar
 }
 
 fn setup_health_bar(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: ResMut<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     player_query: Query<&Player>,
@@ -225,7 +225,7 @@ fn update_game_state_screen(
     mut query: Query<(&mut Text, &mut Visible), With<GameStateLabel>>,
 ) {
     for (mut text, mut visibility) in query.iter_mut() {
-        match **state {
+        match *state.current() {
             GameState::StartMenu => {
                 visibility.is_visible = true;
                 text.sections[0].value = "Press Space to start".to_string();
@@ -247,7 +247,7 @@ fn update_game_state_screen(
     }
 }
 
-fn setup_game_status(commands: &mut Commands, asset_server: ResMut<AssetServer>) {
+fn setup_game_status(mut commands: Commands, asset_server: ResMut<AssetServer>) {
     commands.spawn((GameStateLabel,)).with_bundle(TextBundle {
         text: Text::with_section(
             "",

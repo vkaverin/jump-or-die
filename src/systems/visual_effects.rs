@@ -5,7 +5,6 @@ use bevy::prelude::*;
 
 pub fn run_visual_effects(
     time: Res<Time>,
-    state: Res<State<GameState>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut query: Query<
         (
@@ -17,10 +16,6 @@ pub fn run_visual_effects(
         With<Player>,
     >,
 ) {
-    if *state != GameState::Running {
-        return;
-    }
-
     for (mut visual_effects, mut visibility, mut transform, material) in query.iter_mut() {
         for effect in &mut visual_effects.effects {
             effect.tick(time.delta_seconds());

@@ -9,5 +9,5 @@ edition = "2018"
 debug = []
 
 [dependencies]
-bevy = { git = "https://github.com/bevyengine/bevy" }
+bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
 rand = "0.7.3"

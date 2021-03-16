@@ -19,7 +19,7 @@ pub struct DebugBlock;
 struct DebugText;
 
 fn debug_setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
@@ -79,7 +79,7 @@ fn update_debug_info_panel(
         for (player, velocity, transform) in player_query.iter() {
             text.sections[0].value = format!(
                 "Game: {:#?}\nPlayer: {:#?}\nVelocity: {:#?}\n Translation: {:#?}\n",
-                game,
+                *game,
                 player,
                 velocity,
                 transform.translation.truncate()

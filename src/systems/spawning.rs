@@ -6,21 +6,17 @@ use crate::player::Player;
 use crate::world::{Collider, Velocity};
 use bevy::prelude::*;
 use rand::{thread_rng, Rng};
+use std::time::Duration;
 
 pub fn spawn_new_enemy(
-    commands: &mut Commands,
+    mut commands: Commands,
     window: Res<WindowDescriptor>,
     time: Res<Time>,
-    state: Res<State<GameState>>,
     mut spawn_timer: ResMut<SpawnTimer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     player_query: Query<&Sprite, With<Player>>,
 ) {
-    if *state != GameState::Running {
-        return;
-    }
-
-    spawn_timer.timer.tick(time.delta_seconds());
+    spawn_timer.timer.tick(time.delta());
 
     if !spawn_timer.timer.finished() {
         return;
@@ -28,7 +24,7 @@ pub fn spawn_new_enemy(
 
     spawn_timer
         .timer
-        .set_duration(thread_rng().gen_range(2.0, 3.0));
+        .set_duration(Duration::from_secs_f32(thread_rng().gen_range(2.0, 3.0)));
     let mut rng = thread_rng();
 
     commands
@@ -82,15 +78,10 @@ pub fn spawn_new_enemy(
 }
 
 pub fn drop_enemies(
-    commands: &mut Commands,
+    mut commands: Commands,
     game_window: Res<WindowDescriptor>,
-    state: Res<State<GameState>>,
     query: Query<(Entity, &Sprite, &Transform), With<Enemy>>,
 ) {
-    if *state != GameState::Running {
-        return;
-    }
-
     for (enemy_entity, sprite, transform) in query.iter() {
         if transform.translation.x + sprite.size.x < -(game_window.width as f32) / 2.0 {
             commands.despawn(enemy_entity);
@@ -99,26 +90,21 @@ pub fn drop_enemies(
 }
 
 pub fn spawn_health(
-    commands: &mut Commands,
+    mut commands: Commands,
     window: Res<WindowDescriptor>,
     time: Res<Time>,
-    state: Res<State<GameState>>,
     asset_server: Res<AssetServer>,
     mut timer: ResMut<AwardTimer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     players: Query<&Player>,
 ) {
-    if *state != GameState::Running {
-        return;
-    }
-
     for player in players.iter() {
         if player.health == player.max_health {
             return;
         }
     }
 
-    timer.timer.tick(time.delta_seconds());
+    timer.timer.tick(time.delta());
     if !timer.timer.finished() {
         return;
     }

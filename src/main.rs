@@ -9,11 +9,14 @@ mod world;
 use crate::awards::AwardTimer;
 use crate::effects::{ActiveEffects, EntityEffects, VisualEffects};
 use crate::enemies::SpawnTimer;
-use crate::game::{Game, GameEntity, GameStage, GameState, GameStateEvent};
+use crate::game::{Game, GameEntity, GameState};
 use crate::player::{Player, PlayerEvent};
 use crate::systems::plugins::*;
 use crate::world::{AffectedByGravity, Gravity, Velocity};
 
+use bevy::diagnostic::LogDiagnosticsPlugin;
+use bevy::ecs::schedule::ReportExecutionOrderAmbiguities;
+use bevy::log::LogPlugin;
 use bevy::prelude::*;
 
 fn main() {
@@ -25,90 +28,44 @@ fn main() {
         ..Default::default()
     })
     .add_plugins(DefaultPlugins)
+    .add_state(GameState::StartMenu)
     .add_plugin(InputPlugin)
     .add_plugin(HudPlugin)
-    .add_event::<GameStateEvent>()
     .add_event::<PlayerEvent>()
     .add_startup_system(setup.system())
-    .add_stage_after(
-        CoreStage::Update,
-        GameStage::Game,
-        StateStage::<GameState>::default(),
+    .add_system_set(
+        SystemSet::on_enter(GameState::Starting)
+            .with_system(systems::gameplay::start_game.system()),
     )
-    .on_state_enter(
-        GameStage::Game,
-        GameState::Starting,
-        systems::gameplay::start_game.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::spawning::drop_enemies.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::spawning::spawn_health.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::gameplay::apply_effects.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::gameplay::cleanup_effects.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::visual_effects::run_visual_effects.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::spawning::spawn_new_enemy.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::gameplay::random_enemy_jump.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::physics::movement.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::physics::gravity.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::physics::collisions.system(),
-    )
-    .on_state_update(
-        GameStage::Game,
-        GameState::Running,
-        systems::events::player_events.system(),
+    .add_system_set(
+        SystemSet::on_update(GameState::Running)
+            .with_system(systems::spawning::drop_enemies.system())
+            .with_system(systems::spawning::spawn_health.system())
+            .with_system(systems::gameplay::apply_effects.system())
+            .with_system(systems::gameplay::cleanup_effects.system())
+            .with_system(systems::visual_effects::run_visual_effects.system())
+            .with_system(systems::spawning::spawn_new_enemy.system())
+            .with_system(systems::gameplay::random_enemy_jump.system())
+            .with_system(systems::physics::movement.system())
+            .with_system(systems::physics::gravity.system())
+            .with_system(systems::physics::collisions.system())
+            .with_system(systems::events::player_events.system()),
     );
 
     #[cfg(feature = "debug")]
-    app.add_plugin(DebugPlugin);
+    {
+        app.add_plugin(DebugPlugin);
+    }
 
     app.run();
 }
 
-fn setup(commands: &mut Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
+fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
     commands
         .spawn(OrthographicCameraBundle::new_2d())
         .spawn(UiCameraBundle::default())
         .insert_resource(ClearColor(Color::WHITE))
         .insert_resource(Game::default())
-        .insert_resource(State::new(GameState::StartMenu))
         .insert_resource(Gravity::default())
         .insert_resource(SpawnTimer {
             timer: Timer::from_seconds(3.0, true),

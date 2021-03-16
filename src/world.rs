@@ -17,7 +17,7 @@ impl Velocity {
     pub fn new(v: Vec2) -> Self {
         Self {
             base: v,
-            boost: Vec2::one(),
+            boost: Vec2::ONE,
         }
     }
 
@@ -73,12 +73,12 @@ impl Velocity {
     }
 
     pub fn drop_boost(&mut self) {
-        self.boost = Vec2::one();
+        self.boost = Vec2::ONE;
     }
 
     pub fn reset(&mut self) {
-        self.base = Vec2::zero();
-        self.boost = Vec2::one();
+        self.base = Vec2::ZERO;
+        self.boost = Vec2::ONE;
     }
 }
 
