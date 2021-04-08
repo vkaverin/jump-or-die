@@ -1,7 +1,7 @@
 use crate::awards::{Award, AwardTimer};
 use crate::enemies;
 use crate::enemies::{Enemy, SpawnTimer};
-use crate::game::{GameEntity, GameState};
+use crate::game::{GameEntity};
 use crate::player::Player;
 use crate::world::{Collider, Velocity};
 use bevy::prelude::*;
@@ -27,23 +27,14 @@ pub fn spawn_new_enemy(
         .set_duration(Duration::from_secs_f32(thread_rng().gen_range(2.0, 3.0)));
     let mut rng = thread_rng();
 
-    commands
-        .spawn((Enemy,))
-        .with(GameEntity)
-        .with(Velocity::new(Vec2::new(
-            -enemies::VELOCITY_X,
-            enemies::VELOCITY_Y,
-        )))
-        .with(Collider::Solid)
-        .with_bundle(SpriteBundle {
+    commands.spawn_bundle(SpriteBundle {
             sprite: Sprite::new(Vec2::new(enemies::ENEMY_WIDTH, enemies::ENEMY_HEIGHT)),
             material: materials.add(
                 Color::rgb(
                     rng.gen_range(0.0, 1.0),
                     rng.gen_range(0.0, 1.0),
                     rng.gen_range(0.0, 1.0),
-                )
-                .into(),
+                ).into(),
             ),
             transform: Transform::from_translation(Vec3::new(
                 enemies::INITIAL_POSITION_X,
@@ -51,11 +42,14 @@ pub fn spawn_new_enemy(
                 0.0,
             )),
             ..Default::default()
-        });
+        })
+        .insert(Enemy)
+        .insert(GameEntity)
+        .insert(Velocity::new(Vec2::new(-enemies::VELOCITY_X, enemies::VELOCITY_Y)))
+        .insert(Collider::Solid);
 
     for sprite in player_query.iter() {
-        commands
-            .spawn(SpriteBundle {
+        commands.spawn_bundle(SpriteBundle {
                 sprite: Sprite::new(Vec2::new(enemies::ENEMY_WIDTH, window.height as f32)),
                 material: materials.add(Color::NONE.into()),
                 transform: Transform::from_translation(Vec3::new(
@@ -69,11 +63,11 @@ pub fn spawn_new_enemy(
                 },
                 ..Default::default()
             })
-            .with(Velocity::new(Vec2::new(
+            .insert(Velocity::new(Vec2::new(
                 -enemies::VELOCITY_X,
                 enemies::VELOCITY_Y,
             )))
-            .with(Collider::Award(Award::Score(enemies::SCORE)));
+            .insert(Collider::Award(Award::Score(enemies::SCORE)));
     }
 }
 
@@ -84,7 +78,7 @@ pub fn drop_enemies(
 ) {
     for (enemy_entity, sprite, transform) in query.iter() {
         if transform.translation.x + sprite.size.x < -(game_window.width as f32) / 2.0 {
-            commands.despawn(enemy_entity);
+            commands.entity(enemy_entity).despawn();
         }
     }
 }
@@ -124,14 +118,13 @@ pub fn spawn_health(
     let initial_x = (window.width as f32 + width) / 2.0;
     let initial_y = height / 2.0;
 
-    commands
-        .spawn(SpriteBundle {
+    commands.spawn_bundle(SpriteBundle {
             sprite: Sprite::new(Vec2::new(width, height)),
             material: materials.add(texture_handle.into()),
             transform: Transform::from_translation(Vec3::new(initial_x, initial_y, 0.0)),
             ..Default::default()
         })
-        .with(GameEntity)
-        .with(Velocity::with_horizontal(-300.0))
-        .with(Collider::Award(Award::Health(health)));
+        .insert(GameEntity)
+        .insert(Velocity::with_horizontal(-300.0))
+        .insert(Collider::Award(Award::Health(health)));
 }

@@ -23,8 +23,7 @@ fn debug_setup(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    commands
-        .spawn(NodeBundle {
+    commands.spawn_bundle(NodeBundle {
             style: Style {
                 size: Size::new(Val::Px(256.0), Val::Percent(100.0)),
                 border: Rect::all(Val::Px(2.0)),
@@ -37,10 +36,9 @@ fn debug_setup(
             },
             ..Default::default()
         })
-        .with(DebugBlock)
+        .insert(DebugBlock)
         .with_children(|parent| {
-            parent
-                .spawn(TextBundle {
+            parent.spawn_bundle(TextBundle {
                     text: Text::with_section(
                         "",
                         TextStyle {
@@ -65,7 +63,7 @@ fn debug_setup(
                     },
                     ..Default::default()
                 })
-                .with(DebugText);
+                .insert(DebugText);
         });
 }
 

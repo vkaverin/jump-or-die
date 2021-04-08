@@ -1,4 +1,3 @@
-use crate::game::GameState;
 use crate::player::{self, Player, PlayerEvent};
 use crate::world::{Collider, Gravity, Velocity};
 use bevy::prelude::*;
@@ -76,7 +75,7 @@ pub fn collisions(
                     }
                     Collider::Award(award) => {
                         events.send(PlayerEvent::Award(*award));
-                        commands.despawn(collider_entity);
+                        commands.entity(collider_entity).despawn();
                     }
                 }
             }

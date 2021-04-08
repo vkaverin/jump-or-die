@@ -67,7 +67,7 @@ pub fn start_game(
     game.score = 0.0;
 
     for entity in entities.iter() {
-        commands.despawn(entity);
+        commands.entity(entity).despawn();
     }
 
     for (
@@ -91,5 +91,5 @@ pub fn start_game(
         transform.translation.y = player::INITIAL_POSITION_Y;
     }
 
-    state.set_next(GameState::Running).unwrap();
+    state.set(GameState::Running).unwrap();
 }

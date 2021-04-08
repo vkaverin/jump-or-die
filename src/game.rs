@@ -8,7 +8,7 @@ pub enum GameStage {
     Game,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum GameState {
     StartMenu,
     Starting,

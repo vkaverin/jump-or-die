@@ -41,7 +41,7 @@ impl Plugin for HudPlugin {
 }
 
 fn setup_scoreboard(mut commands: Commands, asset_server: ResMut<AssetServer>) {
-    commands.spawn((Scoreboard,)).with_bundle(TextBundle {
+    commands.spawn_bundle(TextBundle {
         text: Text::with_section(
             "",
             TextStyle {
@@ -61,7 +61,8 @@ fn setup_scoreboard(mut commands: Commands, asset_server: ResMut<AssetServer>) {
             ..Default::default()
         },
         ..Default::default()
-    });
+    })
+        .insert(Scoreboard);
 }
 
 fn update_scoreboard(game: Res<Game>, mut query: Query<&mut Text, With<Scoreboard>>) {
@@ -79,8 +80,7 @@ fn setup_health_bar(
     let health_handle = asset_server.load("sprites/health.png");
     let material_handle = materials.add(health_handle.into());
 
-    commands
-        .spawn(NodeBundle {
+    commands.spawn_bundle(NodeBundle {
             material: materials.add(Color::NONE.into()),
             style: Style {
                 position_type: PositionType::Absolute,
@@ -106,8 +106,7 @@ fn setup_health_bar(
         .with_children(move |parent| {
             for player in player_query.iter() {
                 for health in 1..=player.max_health {
-                    parent
-                        .spawn(ImageBundle {
+                    parent.spawn_bundle(ImageBundle {
                             style: Style {
                                 max_size: Size::new(
                                     Val::Px(HEALTH_INDICATOR_WIDTH),
@@ -126,11 +125,12 @@ fn setup_health_bar(
                             },
                             ..Default::default()
                         })
-                        .with(HealthIndicator { health });
+                        .insert(HealthIndicator { health });
                 }
             }
-        })
-        .spawn(TextBundle {
+        });
+
+    commands.spawn_bundle(TextBundle {
             text: Text::with_section(
                 "",
                 TextStyle {
@@ -155,7 +155,7 @@ fn setup_health_bar(
             },
             ..Default::default()
         })
-        .with(ActiveEffectsBar);
+        .insert(ActiveEffectsBar);
 }
 
 fn update_health_bar(
@@ -248,7 +248,7 @@ fn update_game_state_screen(
 }
 
 fn setup_game_status(mut commands: Commands, asset_server: ResMut<AssetServer>) {
-    commands.spawn((GameStateLabel,)).with_bundle(TextBundle {
+    commands.spawn_bundle(TextBundle {
         text: Text::with_section(
             "",
             TextStyle {
@@ -263,5 +263,6 @@ fn setup_game_status(mut commands: Commands, asset_server: ResMut<AssetServer>) 
             ..Default::default()
         },
         ..Default::default()
-    });
+    })
+        .insert(GameStateLabel);
 }

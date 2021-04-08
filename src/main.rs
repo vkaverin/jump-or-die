@@ -14,9 +14,6 @@ use crate::player::{Player, PlayerEvent};
 use crate::systems::plugins::*;
 use crate::world::{AffectedByGravity, Gravity, Velocity};
 
-use bevy::diagnostic::LogDiagnosticsPlugin;
-use bevy::ecs::schedule::ReportExecutionOrderAmbiguities;
-use bevy::log::LogPlugin;
 use bevy::prelude::*;
 
 fn main() {
@@ -61,39 +58,42 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
-    commands
-        .spawn(OrthographicCameraBundle::new_2d())
-        .spawn(UiCameraBundle::default())
-        .insert_resource(ClearColor(Color::WHITE))
-        .insert_resource(Game::default())
-        .insert_resource(Gravity::default())
-        .insert_resource(SpawnTimer {
-            timer: Timer::from_seconds(3.0, true),
-        })
-        .insert_resource(AwardTimer::new(5.0, 15.0))
-        .spawn((Player::new(),))
-        .with(GameEntity)
-        .with(EntityEffects::default())
-        .with(ActiveEffects::new())
-        .with(VisualEffects::new())
-        .with(Velocity::default())
-        .with(AffectedByGravity)
-        .with_bundle(SpriteBundle {
+    commands.insert_resource(ClearColor(Color::WHITE));
+    commands.insert_resource(Game::default());
+    commands.insert_resource(Gravity::default());
+    commands.insert_resource(AwardTimer::new(5.0, 15.0));
+    commands.insert_resource(SpawnTimer {
+        timer: Timer::from_seconds(3.0, true),
+    });
+
+    commands.spawn_bundle(UiCameraBundle::default());
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+
+    commands.spawn_bundle(SpriteBundle {
+        sprite: Sprite::new(Vec2::new(world::SCREEN_WIDTH, world::SCREEN_HEIGHT)),
+        material: materials.add(Color::BLACK.into()),
+        transform: Transform::from_translation(Vec3::new(
+            0.0,
+            -world::SCREEN_HEIGHT / 2.0,
+            0.0,
+        )),
+        ..Default::default()
+    });
+
+    commands.spawn()
+        .insert(Player::new())
+        .insert(GameEntity)
+        .insert(EntityEffects::default())
+        .insert(ActiveEffects::new())
+        .insert(VisualEffects::new())
+        .insert(Velocity::default())
+        .insert(AffectedByGravity)
+        .insert_bundle(SpriteBundle {
             sprite: Sprite::new(Vec2::new(player::WIDTH, player::HEIGHT)),
             material: materials.add(Color::BLACK.into()),
             transform: Transform::from_translation(Vec3::new(
                 player::INITIAL_POSITION_X,
                 player::INITIAL_POSITION_Y,
-                0.0,
-            )),
-            ..Default::default()
-        })
-        .spawn(SpriteBundle {
-            sprite: Sprite::new(Vec2::new(world::SCREEN_WIDTH, world::SCREEN_HEIGHT)),
-            material: materials.add(Color::BLACK.into()),
-            transform: Transform::from_translation(Vec3::new(
-                0.0,
-                -world::SCREEN_HEIGHT / 2.0,
                 0.0,
             )),
             ..Default::default()

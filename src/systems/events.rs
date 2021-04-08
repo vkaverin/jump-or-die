@@ -27,7 +27,7 @@ pub fn player_events(
                     if !is_invulnerable && player.health > 0 {
                         player.health -= 1;
                         if player.health == 0 {
-                            state.set_next(GameState::GameOver).unwrap();
+                            state.set(GameState::GameOver).unwrap();
                         } else {
                             effects.effects.push(Effect::new_invulnerability());
                             visual_effects
